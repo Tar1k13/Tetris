@@ -3,7 +3,6 @@
   "author": "Anonymous maker",
   "editor": "wokwi",
   "parts": [
-    { "type": "wokwi-breadboard-half", "id": "bb1", "top": 83.4, "left": 319.6, "attrs": {} },
     { "type": "board-esp32-devkit-c-v4", "id": "esp", "top": -38.4, "left": 43.24, "attrs": {} },
     {
       "type": "wokwi-max7219-matrix",
@@ -24,19 +23,17 @@
     { "type": "wokwi-gnd", "id": "gnd1", "top": 249.6, "left": -125.4, "attrs": {} },
     { "type": "wokwi-gnd", "id": "gnd2", "top": 249.6, "left": -87, "attrs": {} },
     {
-      "type": "wokwi-analog-joystick",
-      "id": "joystick1",
-      "top": -307.8,
-      "left": 274.2,
-      "attrs": {}
-    },
-    { "type": "wokwi-vcc", "id": "vcc3", "top": -316.04, "left": -28.8, "attrs": {} },
-    { "type": "wokwi-gnd", "id": "gnd3", "top": -86.4, "left": 335.4, "attrs": {} },
-    {
       "type": "wokwi-pushbutton",
       "id": "btn1",
-      "top": 6.2,
-      "left": 422.4,
+      "top": 63.8,
+      "left": 345.6,
+      "attrs": { "color": "green" }
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "btn2",
+      "top": -13,
+      "left": 355.2,
       "attrs": { "color": "green" }
     }
   ],
@@ -52,12 +49,10 @@
     [ "matrix2:V+", "vcc2:VCC", "green", [ "h0" ] ],
     [ "matrix2:GND", "gnd1:GND", "black", [ "h0" ] ],
     [ "sevseg1:GND", "gnd2:GND", "black", [ "h0" ] ],
-    [ "joystick1:VCC", "vcc3:VCC", "red", [ "v9.6", "h-326.4" ] ],
-    [ "joystick1:GND", "gnd3:GND", "black", [ "v96" ] ],
-    [ "joystick1:VERT", "esp:34", "green", [ "v124.8", "h-297.6", "v96" ] ],
-    [ "joystick1:HORZ", "esp:35", "green", [ "v115.2", "h-297.6", "v115.2" ] ],
-    [ "esp:2", "btn1:2.l", "green", [ "h163.2", "v38.4" ] ],
-    [ "esp:GND.2", "btn1:1.l", "black", [ "v0", "h163.2", "v28.8" ] ]
+    [ "esp:2", "btn1:2.l", "green", [ "h182.4", "v-28.8" ] ],
+    [ "btn1:1.l", "esp:GND.2", "green", [ "h-19.2", "v-96" ] ],
+    [ "esp:4", "btn2:2.l", "green", [ "h163.2", "v-86.4" ] ],
+    [ "btn2:1.l", "esp:GND.2", "green", [ "h-134.4", "v-28.8", "h-76.8" ] ]
   ],
   "dependencies": {}
 }
