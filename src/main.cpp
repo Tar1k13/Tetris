@@ -113,7 +113,7 @@ int countOnes(int num, int numBits) {
 
 int curState = 0;       // current left move
 int curState1 = 0;      // current right move
-int fig = 0;            // current figure
+int fig = 1;            // current figure
 int rot = 0;            // current rotation
 int currentColumn = 0;  // current column
 int height = 0;         // current height
@@ -188,15 +188,51 @@ void move(int col, int height, int prevStep, int nextStep, boolean right) {
   }
 }
 
+// boolean checkRotateObjection(int col,int fg,int rt){
+//     for (int t = 0; t < height; t++) {
+//     int elem = figures[fg][rt][startPos[fg][rt] + t] << curState >>
+//                curState1 >> mv;
+//     if ((elem & matrix[col + t]) != 0) {
+//       Serial.println("ROTATEOBJECTION");
+//       return true;
+//     }
+//   }
+//   return false;
+// }
+
+boolean isRotateAble(int col,int fg,int rt){
+  int newHeight = calculateHeight(figures[fg][rt]);
+  Serial.print(col);
+  Serial.print(" ");
+  Serial.println(newHeight);
+  Serial.println(col+newHeight);
+  if((col+newHeight) > 16) return false;
+   for (int t = 0; t < newHeight; t++) {
+    // put
+    int elem = ((figures[fg][rt][startPos[fg][rt] + t] << curState >>
+                 curState1 >> mv));
+    while (countOnes(elem, 8) < countOnes(elem, 12)) {
+      elem = (elem >> 1);
+    }
+    if((elem & matrix[col+t]) != 0){
+      return false;
+    }
+   }
+  return true;;
+}
 void rotate(int col, int heigh) {
+  if(!isRotateAble(currentColumn,fig,rot+1)) return;
   for (int t = 0; t < heigh; t++) {
     // clear
     mx.setColumn(mapping[col + t], matrix[col + t]);
   }
-  if (rot < 3)
+  if (rot < 3){
     rot += 1;
-  else
+  }
+  else{
     rot = 0;
+  }
+  
   int newHeight = calculateHeight(figures[fig][rot]);
   height = newHeight;
   for (int t = 0; t < newHeight; t++) {
@@ -209,7 +245,7 @@ void rotate(int col, int heigh) {
       mv++;
       // rotateBias++;
     }
-    Serial.println(elem);
+    // Serial.println(elem);
     mx.setColumn(mapping[col + t], elem);
   }
 }
@@ -289,7 +325,7 @@ void loop() {
       break;
     currentCol = col;
 
-    delay(1000);
+    delay(500);
   }
   for (int t = 0; t < height; t++) {
     int sum = (figures[fig][rot][startPos[fig][rot] + t] << curState >>
@@ -300,6 +336,20 @@ void loop() {
     }
     matrix[currentCol + t] = sum;
   }
+  //delete line
+  // for(int i=0;i<(sizeof(matrix)/sizeof(matrix[0]));i++){
+  //   if(countOnes(matrix[i],8)==8){
+  //     matrix[i]=0;
+  //     for(int t=i;t>0;t--){
+  //       matrix[t]=matrix[t-1];
+  //     }
+  //   };
+  // }
+
+  // //re-render
+  // for(int i=0;i<(sizeof(mapping)/sizeof(mapping[0]));i++){
+  //   mx.setColumn(mapping[i],matrix[i]);
+  // }
   curState = 0;
   curState1 = 0;
   rot = 0;
