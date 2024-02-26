@@ -3,7 +3,6 @@
 #include <SPI.h>
 #include <TM1637.h>
 
-
 TM1637 tm(25, 26);
 
 // Uncomment according to your hardware type
@@ -30,48 +29,46 @@ void mapn() {
     mapping[i] = counter++;
   }
 }
-int buttonStateLeft = 0;
-int buttonStateRight = 0;
-int buttonStateFlip = 0;
+// int buttonStateLeft = 0;
+// int buttonStateRight = 0;
+// int buttonStateFlip = 0;
 
-
-int figures[7][4][5] = {{{0x0, 0x0, 0x38, 0x10, 0x0},  //T
+int figures[7][4][5] = {{{0x0, 0x0, 0x38, 0x10, 0x0},  // T
                          {0x0, 0x10, 0x30, 0x10, 0x0},
                          {0x0, 0x0, 0x10, 0x38, 0x0},
                          {0x0, 0x10, 0x18, 0x10, 0x0}},
-                        {{0x0, 0x4, 0x4, 0x4, 0x4},   //I
+                        {{0x0, 0x4, 0x4, 0x4, 0x4},  // I
                          {0x0, 0x0, 0x3C, 0x0, 0x0},
                          {0x0, 0x4, 0x4, 0x4, 0x4},
                          {0x0, 0x0, 0x3C, 0x0, 0x0}},
-                        {{0x0, 0x0, 0x18, 0x18,0x0},  //O
-                        {0x0, 0x0, 0x18, 0x18,0x0},
-                        {0x0, 0x0, 0x18, 0x18,0x0},
-                        {0x0, 0x0, 0x18, 0x18,0x0}},
-                        {{0x0,0xC,0x8,0x8,0x0},       //L
-                        {0x0,0x0,0x1C,0x4,0x0},
-                        {0x0,0x8,0x8,0x18,0x0},
-                        {0x0,0x10,0x1C,0x0,0x0}},
-                        {{0x0,0x8,0x8,0xC,0x0},   //J
-                        {0x0,0x0,0x1C,0x10,0x0},
-                        {0x0,0x18,0x8,0x8,0x0},
-                        {0x0,0x4,0x1C,0x0,0x0}},
-                        {{0x0,0x8,0xC,0x4,0x0},   //S
-                        {0x0,0x0,0xC,0x18,0x0},
-                        {0x0,0x10,0x18,0x8,0x0},
-                        {0x0,0xC,0x18,0x0,0x0}},
-                        {{0x0,0x4,0xC,0x8,0x0},   //Z
-                        {0x0,0x0,0x18,0xC,0x0},
-                        {0x0,0x8,0x18,0x10,0x0},
-                        {0x0,0x18,0xC,0x0,0x0}}};
+                        {{0x0, 0x0, 0x18, 0x18, 0x0},  // O
+                         {0x0, 0x0, 0x18, 0x18, 0x0},
+                         {0x0, 0x0, 0x18, 0x18, 0x0},
+                         {0x0, 0x0, 0x18, 0x18, 0x0}},
+                        {{0x0, 0xC, 0x8, 0x8, 0x0},  // L
+                         {0x0, 0x0, 0x1C, 0x4, 0x0},
+                         {0x0, 0x8, 0x8, 0x18, 0x0},
+                         {0x0, 0x10, 0x1C, 0x0, 0x0}},
+                        {{0x0, 0x8, 0x8, 0xC, 0x0},  // J
+                         {0x0, 0x0, 0x1C, 0x10, 0x0},
+                         {0x0, 0x18, 0x8, 0x8, 0x0},
+                         {0x0, 0x4, 0x1C, 0x0, 0x0}},
+                        {{0x0, 0x8, 0xC, 0x4, 0x0},  // S
+                         {0x0, 0x0, 0xC, 0x18, 0x0},
+                         {0x0, 0x10, 0x18, 0x8, 0x0},
+                         {0x0, 0xC, 0x18, 0x0, 0x0}},
+                        {{0x0, 0x4, 0xC, 0x8, 0x0},  // Z
+                         {0x0, 0x0, 0x18, 0xC, 0x0},
+                         {0x0, 0x8, 0x18, 0x10, 0x0},
+                         {0x0, 0x18, 0xC, 0x0, 0x0}}};
 
-int startPos[7][4] = {
-  {2, 1, 2, 1}, //T
-  {1, 2, 1, 2}, //I
-  {2,2,2,2},    //O
-  {1,2,1,1},    //L
-  {1,2,1,1},    //J
-  {1,2,1,1},    //S
-  {1,2,1,1}};   //Z
+int startPos[7][4] = {{2, 1, 2, 1},   // T
+                      {1, 2, 1, 2},   // I
+                      {2, 2, 2, 2},   // O
+                      {1, 2, 1, 1},   // L
+                      {1, 2, 1, 1},   // J
+                      {1, 2, 1, 1},   // S
+                      {1, 2, 1, 1}};  // Z
 
 int matrix[17];
 int calculateHeight(int fig[]) {
@@ -114,34 +111,34 @@ int countOnes(int num, int numBits) {
   return count;
 }
 
+int curState = 0;       // current left move
+int curState1 = 0;      // current right move
+int fig = 0;            // current figure
+int rot = 0;            // current rotation
+int currentColumn = 0;  // current column
+int height = 0;         // current height
+int mv = 0;             // current rotation mudslide due to rotation bondaries
+int ml = 0;
 
-
-
-int curState = 0;     // current left move
-int curState1 = 0;    // current right move
-int fig = 0;          // current figure
-int rot = 0;          // current rotation
-int currentColumn=0;  // current column
-int height=0;         // current height
-int mv=0;             // current rotation mudslide due to rotation bondaries
-int ml=0;
-
-boolean checkObjection(int col,int height){
-    for (int t = 0; t < height; t++) {
-      int elem = figures[fig][rot][startPos[fig][rot] + t] << curState >> curState1 >> mv;
-      if ((elem & matrix[col + t]) != 0) {
-        Serial.println("OBJECTION");
-        return true;
-      }
+boolean checkObjection(int col, int height) {
+  for (int t = 0; t < height; t++) {
+    int elem = figures[fig][rot][startPos[fig][rot] + t] << curState >>
+               curState1 >> mv;
+    if ((elem & matrix[col + t]) != 0) {
+      Serial.println("OBJECTION");
+      return true;
     }
-    return false;
+  }
+  return false;
 }
 
 boolean checkBoundings(int height, boolean right) {
   if (!right) {
     for (int t = 0; t < height; t++) {
-      int elem = figures[fig][rot][startPos[fig][rot] + t] << curState + 1 >>curState1 >> mv;
-      int curElem = figures[fig][rot][startPos[fig][rot] + t] << curState >>curState1 >> mv;
+      int elem = figures[fig][rot][startPos[fig][rot] + t] << curState + 1 >>
+                 curState1 >> mv;
+      int curElem = figures[fig][rot][startPos[fig][rot] + t] << curState >>
+                    curState1 >> mv;
       if (countOneDigitsInHex(elem) != countOneDigitsInHex(curElem)) {
         return false;
       }
@@ -149,11 +146,14 @@ boolean checkBoundings(int height, boolean right) {
     return true;
   } else {
     for (int t = 0; t < height; t++) {
-      int elem = figures[fig][rot][startPos[fig][rot] + t]<< curState >> (curState1+1) >> mv;
-      int curElem = figures[fig][rot][startPos[fig][rot] + t] << curState >> curState1 >> mv;
+      int elem = figures[fig][rot][startPos[fig][rot] + t] << curState >>
+                 (curState1 + 1) >> mv;
+      int curElem = figures[fig][rot][startPos[fig][rot] + t] << curState >>
+                    curState1 >> mv;
       // curElem=curElem>>mv;
       // Serial.println(elem);
-      if (elem==0 || (countOneDigitsInHex(elem) != countOneDigitsInHex(curElem))) {
+      if (elem == 0 ||
+          (countOneDigitsInHex(elem) != countOneDigitsInHex(curElem))) {
         return false;
       }
     }
@@ -162,14 +162,16 @@ boolean checkBoundings(int height, boolean right) {
   return true;
 }
 
-void move(int col,int height, int prevStep, int nextStep,boolean right){
-  if(right) curState1=nextStep;
-  else curState=nextStep;
-  if(!checkObjection(col,height)){
+void move(int col, int height, int prevStep, int nextStep, boolean right) {
+  if (right)
+    curState1 = nextStep;
+  else
+    curState = nextStep;
+  if (!checkObjection(col, height)) {
     for (int t = 0; t < height; t++) {
-      int elem =
-          ((figures[fig][rot][startPos[fig][rot] + t] << curState >> curState1 >> mv) +
-          matrix[col + t]);
+      int elem = ((figures[fig][rot][startPos[fig][rot] + t] << curState >>
+                   curState1 >> mv) +
+                  matrix[col + t]);
       // safe put
       while (countOnes(elem, 8) < countOnes(elem, 12)) {
         elem = (elem >> 1) + matrix[col + t];
@@ -177,74 +179,75 @@ void move(int col,int height, int prevStep, int nextStep,boolean right){
 
       mx.setColumn(mapping[col + t], elem);
     }
-  } else{
+  } else {
     Serial.println("HER");
-    if(right) curState1=prevStep;
-    else curState=prevStep;
+    if (right)
+      curState1 = prevStep;
+    else
+      curState = prevStep;
   }
 }
 
-
-void rotate(int col,int heigh){
+void rotate(int col, int heigh) {
   for (int t = 0; t < heigh; t++) {
-    //clear
-    mx.setColumn(mapping[col+t],matrix[col+t]);
+    // clear
+    mx.setColumn(mapping[col + t], matrix[col + t]);
   }
-  if(rot<3)
-    rot+=1;
-  else rot=0;
-  int newHeight=calculateHeight(figures[fig][rot]);
-  height=newHeight;
+  if (rot < 3)
+    rot += 1;
+  else
+    rot = 0;
+  int newHeight = calculateHeight(figures[fig][rot]);
+  height = newHeight;
   for (int t = 0; t < newHeight; t++) {
-    //put
+    // put
     int elem = ((figures[fig][rot][startPos[fig][rot] + t] << curState >>
-                curState1 >> mv) +
+                 curState1 >> mv) +
                 matrix[col + t]);
-        while (countOnes(elem, 8) < countOnes(elem, 12)) {
-          elem = (elem >> 1) + matrix[col+t];
-          mv++;
-          // rotateBias++;
-        }
+    while (countOnes(elem, 8) < countOnes(elem, 12)) {
+      elem = (elem >> 1) + matrix[col + t];
+      mv++;
+      // rotateBias++;
+    }
     Serial.println(elem);
-    mx.setColumn(mapping[col+t],elem);
+    mx.setColumn(mapping[col + t], elem);
   }
 }
 
 // one-click flags
-boolean flag1=false;
-boolean flag2=false;
-boolean flag3=false;
+boolean flag1 = false;
+boolean flag2 = false;
+boolean flag3 = false;
 
-//input listener
+// input listener
 void control_listener(void *pvParameters) {
   while (true) {
     int height = calculateHeight(figures[fig][rot]);
 
-    //left
-    if (digitalRead(BUTTON_PIN) == LOW && checkBoundings(height,false) && !flag1){
-      flag1=true;
-      move(currentColumn,height,curState,curState+1,false);
+    // left
+    if (digitalRead(BUTTON_PIN) == LOW && checkBoundings(height, false) &&
+        !flag1) {
+      flag1 = true;
+      move(currentColumn, height, curState, curState + 1, false);
     }
-    if(digitalRead(BUTTON_PIN)== HIGH) flag1=false;
+    if (digitalRead(BUTTON_PIN) == HIGH) flag1 = false;
 
-    //right
-    if (digitalRead(4) == LOW && checkBoundings(height,true) && !flag2){
-      flag2=true;
-      move(currentColumn,height,curState1,curState1+1,true);
+    // right
+    if (digitalRead(4) == LOW && checkBoundings(height, true) && !flag2) {
+      flag2 = true;
+      move(currentColumn, height, curState1, curState1 + 1, true);
     }
-    if(digitalRead(4)== HIGH) flag2=false;
-    
-    //rotate
-    if (digitalRead(16) == LOW && !flag3){
-      flag3=true;
-      rotate(currentColumn,height);
+    if (digitalRead(4) == HIGH) flag2 = false;
+
+    // rotate
+    if (digitalRead(16) == LOW && !flag3) {
+      flag3 = true;
+      rotate(currentColumn, height);
     }
-    if(digitalRead(16) == HIGH) flag3=false;
+    if (digitalRead(16) == HIGH) flag3 = false;
     vTaskDelay(50 / portTICK_RATE_MS);
   }
-}  
-
-
+}
 
 void setup() {
   Serial.begin(9600);
@@ -257,10 +260,7 @@ void setup() {
   xTaskCreate(control_listener, "calculate_water_temp", 2048, NULL, 2, NULL);
 }
 
-
 void loop() {
-
-
   boolean objectionX = false;
   int heightX = calculateHeight(figures[fig][rot]);
   // int width=countOnesInHexList(figures[fig][rot],5);
@@ -268,18 +268,18 @@ void loop() {
   height = calculateHeight(figures[fig][rot]);
   boolean objection = false;
 
-  int rotateBias=0;
-  int currentCol=0;
+  int rotateBias = 0;
+  int currentCol = 0;
 
   for (size_t col = 0; col < 17 - height; col++) {
-    currentColumn=col;
-    objection=checkObjection(col,height);
+    currentColumn = col;
+    objection = checkObjection(col, height);
 
     if (!objection) {
       for (int t = 0; t < height; t++) {
         int elem = ((figures[fig][rot][startPos[fig][rot] + t] << curState >>
-                    curState1 >> mv) +
-                   matrix[col + t]);
+                     curState1 >> mv) +
+                    matrix[col + t]);
         // Serial.println(elem);
         mx.setColumn(mapping[col + t], elem);                           // put
         if (col != 0) mx.setColumn(mapping[col - 1], matrix[col - 1]);  // move
@@ -292,18 +292,18 @@ void loop() {
     delay(1000);
   }
   for (int t = 0; t < height; t++) {
-    int sum =
-        (figures[fig][rot][startPos[fig][rot] + t] << curState >> curState1 >> mv) +
-        matrix[currentCol + t];
+    int sum = (figures[fig][rot][startPos[fig][rot] + t] << curState >>
+               curState1 >> mv) +
+              matrix[currentCol + t];
     while (countOnes(sum, 8) < countOnes(sum, 12)) {
       sum = (sum >> 1) + matrix[currentCol + t];
     }
     matrix[currentCol + t] = sum;
   }
-  curState=0;
-  curState1=0;
-  rot=0;
-  mv=0;
+  curState = 0;
+  curState1 = 0;
+  rot = 0;
+  mv = 0;
 }
 
-//problem with objection(round case)
+// problem with objection(round case)
