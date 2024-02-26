@@ -35,16 +35,43 @@ int buttonStateRight = 0;
 int buttonStateFlip = 0;
 
 
-int figures[2][4][5] = {{{0x0, 0x0, 0x38, 0x10, 0x0},
+int figures[7][4][5] = {{{0x0, 0x0, 0x38, 0x10, 0x0},  //T
                          {0x0, 0x10, 0x30, 0x10, 0x0},
                          {0x0, 0x0, 0x10, 0x38, 0x0},
-                         {0x0, 0x10, 0x38, 0x0, 0x0}},
-                        {{0x0, 0x4, 0x4, 0x4, 0x4},
+                         {0x0, 0x10, 0x18, 0x10, 0x0}},
+                        {{0x0, 0x4, 0x4, 0x4, 0x4},   //I
                          {0x0, 0x0, 0x3C, 0x0, 0x0},
                          {0x0, 0x4, 0x4, 0x4, 0x4},
-                         {0x0, 0x0, 0x3C, 0x0, 0x0}}};
+                         {0x0, 0x0, 0x3C, 0x0, 0x0}},
+                        {{0x0, 0x0, 0x18, 0x18,0x0},  //O
+                        {0x0, 0x0, 0x18, 0x18,0x0},
+                        {0x0, 0x0, 0x18, 0x18,0x0},
+                        {0x0, 0x0, 0x18, 0x18,0x0}},
+                        {{0x0,0xC,0x8,0x8,0x0},       //L
+                        {0x0,0x0,0x1C,0x4,0x0},
+                        {0x0,0x8,0x8,0x18,0x0},
+                        {0x0,0x10,0x1C,0x0,0x0}},
+                        {{0x0,0x8,0x8,0xC,0x0},   //J
+                        {0x0,0x0,0x1C,0x10,0x0},
+                        {0x0,0x18,0x8,0x8,0x0},
+                        {0x0,0x4,0x1C,0x0,0x0}},
+                        {{0x0,0x8,0xC,0x4,0x0},   //S
+                        {0x0,0x0,0xC,0x18,0x0},
+                        {0x0,0x10,0x18,0x8,0x0},
+                        {0x0,0xC,0x18,0x0,0x0}},
+                        {{0x0,0x4,0xC,0x8,0x0},   //Z
+                        {0x0,0x0,0x18,0xC,0x0},
+                        {0x0,0x8,0x18,0x10,0x0},
+                        {0x0,0x18,0xC,0x0,0x0}}};
 
-int startPos[2][4] = {{1, 1, 2, 1}, {1, 2, 1, 2}};
+int startPos[7][4] = {
+  {2, 1, 2, 1}, //T
+  {1, 2, 1, 2}, //I
+  {2,2,2,2},    //O
+  {1,2,1,1},    //L
+  {1,2,1,1},    //J
+  {1,2,1,1},    //S
+  {1,2,1,1}};   //Z
 
 int matrix[17];
 int calculateHeight(int fig[]) {
@@ -92,11 +119,12 @@ int countOnes(int num, int numBits) {
 
 int curState = 0;     // current left move
 int curState1 = 0;    // current right move
-int fig = 1;          // current figure
+int fig = 0;          // current figure
 int rot = 0;          // current rotation
 int currentColumn=0;  // current column
 int height=0;         // current height
 int mv=0;             // current rotation mudslide due to rotation bondaries
+int ml=0;
 
 boolean checkObjection(int col,int height){
     for (int t = 0; t < height; t++) {
@@ -123,8 +151,8 @@ boolean checkBoundings(int height, boolean right) {
     for (int t = 0; t < height; t++) {
       int elem = figures[fig][rot][startPos[fig][rot] + t]<< curState >> (curState1+1) >> mv;
       int curElem = figures[fig][rot][startPos[fig][rot] + t] << curState >> curState1 >> mv;
-      curElem=curElem>>mv;
-      Serial.println(elem);
+      // curElem=curElem>>mv;
+      // Serial.println(elem);
       if (elem==0 || (countOneDigitsInHex(elem) != countOneDigitsInHex(curElem))) {
         return false;
       }
@@ -162,7 +190,9 @@ void rotate(int col,int heigh){
     //clear
     mx.setColumn(mapping[col+t],matrix[col+t]);
   }
-  rot+=1;
+  if(rot<3)
+    rot+=1;
+  else rot=0;
   int newHeight=calculateHeight(figures[fig][rot]);
   height=newHeight;
   for (int t = 0; t < newHeight; t++) {
@@ -175,7 +205,7 @@ void rotate(int col,int heigh){
           mv++;
           // rotateBias++;
         }
-
+    Serial.println(elem);
     mx.setColumn(mapping[col+t],elem);
   }
 }
@@ -242,7 +272,6 @@ void loop() {
   int currentCol=0;
 
   for (size_t col = 0; col < 17 - height; col++) {
-    Serial.println(col);
     currentColumn=col;
     objection=checkObjection(col,height);
 
@@ -251,9 +280,11 @@ void loop() {
         int elem = ((figures[fig][rot][startPos[fig][rot] + t] << curState >>
                     curState1 >> mv) +
                    matrix[col + t]);
+        // Serial.println(elem);
         mx.setColumn(mapping[col + t], elem);                           // put
         if (col != 0) mx.setColumn(mapping[col - 1], matrix[col - 1]);  // move
       }
+      // Serial.println();
     } else
       break;
     currentCol = col;
