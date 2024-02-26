@@ -337,19 +337,20 @@ void loop() {
     matrix[currentCol + t] = sum;
   }
   //delete line
-  // for(int i=0;i<(sizeof(matrix)/sizeof(matrix[0]));i++){
-  //   if(countOnes(matrix[i],8)==8){
-  //     matrix[i]=0;
-  //     for(int t=i;t>0;t--){
-  //       matrix[t]=matrix[t-1];
-  //     }
-  //   };
-  // }
+  for(int i=0;i<(sizeof(matrix)/sizeof(matrix[0]));i++){
+    if(countOnes(matrix[i],8)==8){
+      matrix[i]=0;
+      for(int t=i;t>0;t--){
+        matrix[t]=matrix[t-1];
+      }
+    };
+  }
 
   // //re-render
-  // for(int i=0;i<(sizeof(mapping)/sizeof(mapping[0]));i++){
-  //   mx.setColumn(mapping[i],matrix[i]);
-  // }
+  for(int i=0;i<(sizeof(matrix)/sizeof(matrix[0]))-1;i++){
+    mx.setColumn(mapping[i],matrix[i]);
+  }
+  Serial.println();
   curState = 0;
   curState1 = 0;
   rot = 0;
