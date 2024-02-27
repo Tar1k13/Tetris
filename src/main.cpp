@@ -297,6 +297,8 @@ void setup() {
 }
 
 void loop() {
+  fig=rand() % 7;
+  rot=rand() % 3;
   boolean objectionX = false;
   int heightX = calculateHeight(figures[fig][rot]);
   // int width=countOnesInHexList(figures[fig][rot],5);
@@ -339,13 +341,21 @@ void loop() {
   //delete line
   for(int i=0;i<(sizeof(matrix)/sizeof(matrix[0]));i++){
     if(countOnes(matrix[i],8)==8){
+      //animation
+      int ts=matrix[i];
+      for(int t=2;t<=4;t++){
+        ts=ts>>t;
+        ts=ts<<t-1;
+        // ts=ts<<i+1;
+        mx.setColumn(mapping[i],ts);
+        delay(500);
+      }
       matrix[i]=0;
       for(int t=i;t>0;t--){
         matrix[t]=matrix[t-1];
       }
     };
   }
-
   // //re-render
   for(int i=0;i<(sizeof(matrix)/sizeof(matrix[0]))-1;i++){
     mx.setColumn(mapping[i],matrix[i]);
