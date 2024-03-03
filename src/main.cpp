@@ -1,7 +1,7 @@
 #include <Arduino.h>
-#include <MD_MAX72xx.h>
 #include <SPI.h>
 #include <TM1637.h>
+#include <MD_MAX72xx.h>
 
 TM1637 tm(25, 26);
 
@@ -61,15 +61,25 @@ int figures[7][4][5] = {{{0x0, 0x10, 0x18, 0x10, 0x0},  // T
                          {0x0, 0x0, 0x18, 0xC, 0x0},
                          {0x0, 0x8, 0x18, 0x10, 0x0},
                          {0x0, 0x18, 0xC, 0x0, 0x0}}};
-
-int startPos[7][4] = {{1, 2, 1, 1},   // T
+const int scope[2][2]={{1,3},{1,4}};
+const int startPos[7][4] = {{1, 2, 1, 1},   // T
                       {1, 2, 1, 2},   // I
                       {2, 2, 2, 2},   // O
                       {1, 2, 1, 1},   // L
                       {1, 2, 1, 1},   // J
                       {1, 2, 1, 1},   // S
                       {1, 2, 1, 1}};  // Z
-
+int center[1]={3};
+int curState = 0;       // current left move
+int curState1 = 0;      // current right move
+int fig = 1;            // current figure
+int rot = 0;            // current rotation
+int currentColumn = 0;  // current column
+int height = 0;         // current height
+int mv = 0;             // current rotation mudslide due to rotation bondaries
+int ml = 0;
+int cl=0;
+int currentfigure[5];
 int matrix[17];
 int calculateHeight(int fig[]) {
   int counter = 0;
@@ -77,6 +87,7 @@ int calculateHeight(int fig[]) {
     if (fig[i] != 0) counter++;
   }
   return counter;
+  // return center[0];
 }
 
 int countOneDigitsInHex(int hexNum) {
@@ -111,22 +122,24 @@ int countOnes(int num, int numBits) {
   return count;
 }
 
-int curState = 0;       // current left move
-int curState1 = 0;      // current right move
-int fig = 3;            // current figure
-int rot = 0;            // current rotation
-int currentColumn = 0;  // current column
-int height = 0;         // current height
-int mv = 0;             // current rotation mudslide due to rotation bondaries
-int ml = 0;
-int currentfigure[5];
+
 
 boolean checkObjection(int col) {
   int bias=0;
-  for(int i=startPos[fig][rot];i<startPos[fig][rot]+height;i++){
+  for(int i=scope[fig][0];i<=scope[fig][1];i++){
     int elem=currentfigure[i];
     if ((elem & matrix[col + bias]) != 0) {
-      Serial.println("OBJECTION");
+      return true;
+    }
+    bias++;
+  }
+  return false;
+}
+
+boolean checkFigureObjection(int* mvdFig,int col){
+  int bias=0;
+  for(int i=scope[fig][0];i<=scope[fig][1];i++){
+    if ((mvdFig[i] & matrix[col + bias]) != 0) {
       return true;
     }
     bias++;
@@ -137,7 +150,7 @@ boolean checkObjection(int col) {
 boolean checkBoundings(boolean right) {
   if (!right) {
     int bias=0;
-      for(int i=startPos[fig][rot];i<startPos[fig][rot]+height;i++){
+      for(int i=scope[fig][0];i<=scope[fig][1];i++){
         int elem=currentfigure[i]<<1;
         if (countOneDigitsInHex(elem) != countOneDigitsInHex(currentfigure[i])) {
           return false;
@@ -145,19 +158,9 @@ boolean checkBoundings(boolean right) {
         bias++;
       }
       return true;
-    // for (int t = 0; t < height; t++) {
-    //   int elem = figures[fig][rot][startPos[fig][rot] + t] << curState + 1 >>
-    //              curState1 >> mv;
-    //   int curElem = figures[fig][rot][startPos[fig][rot] + t] << curState >>
-    //                 curState1 >> mv;
-    //   if (countOneDigitsInHex(elem) != countOneDigitsInHex(curElem)) {
-    //     return false;
-    //   }
-    // }
-    // return true;
   } else {
         int bias=0;
-      for(int i=startPos[fig][rot];i<startPos[fig][rot]+height;i++){
+      for(int i=scope[fig][0];i<=scope[fig][1];i++){
         int elem=currentfigure[i]>>1;
         if (countOneDigitsInHex(elem) != countOneDigitsInHex(currentfigure[i])) {
           return false;
@@ -169,37 +172,49 @@ boolean checkBoundings(boolean right) {
   return true;
 }
 
-void move(int col, int prevStep, int nextStep, boolean right) {
+void move(int col, int* currentFig , boolean right) {
+  int moved[5];
   if(right){
-    Serial.println("HER");
-
-    if(!checkObjection(col)){
-       int bias=0;
-      for(int i=startPos[fig][rot];i<startPos[fig][rot]+height;i++){
-        currentfigure[i]=(currentfigure[i]>>1);
-        int elem=currentfigure[i]+matrix[col+bias];
-        mx.setColumn(mapping[col + bias], elem);
-        bias++;
-      }
+    Serial.println(checkObjection(col));
+    for(int i=scope[fig][0];i<=scope[fig][1];i++){
+      moved[i]=currentfigure[i]>>1;
+      // currentfigure[i]=currentfigure[i]>>1;
+      // mx.setColumn(mapping[col+bias],currentfigure[i]+matrix[col+bias]);
+      // bias++;
     }
   } else {
-    int bias=0;
-    if(!checkObjection(col)){
-      for(int i=startPos[fig][rot];i<startPos[fig][rot]+height;i++){
-        currentfigure[i]=currentfigure[i]<<1;
-        int elem=currentfigure[i]+matrix[col+bias];
-        mx.setColumn(mapping[col + bias], elem);
+    for(int i=scope[fig][0];i<=scope[fig][1];i++){
+      moved[i]=currentfigure[i]<<1;
+      // currentfigure[i]=currentfigure[i]<<1;
+      // mx.setColumn(mapping[col+bias],currentfigure[i]+matrix[col+bias]);
+      
+    }
+    // int bias=0;
+    // if(!checkObjection(col)){
+    //   for(int i=startPos[fig][rot];i<startPos[fig][rot]+height;i++){
+    //     currentfigure[i]=currentfigure[i]<<1;
+    //     int elem=currentfigure[i]+matrix[col+bias];
+    //     mx.setColumn(mapping[col + bias], elem);
+    //     bias++;
+    //   }
+    // }
+  }
+    if(!checkFigureObjection(moved,col)){
+      int bias=0;
+      for(int i=scope[fig][0];i<=scope[fig][1];i++){
+        currentfigure[i]=moved[i];
+        mx.setColumn(mapping[col+bias],moved[i]+matrix[col+bias]);
+
         bias++;
       }
     }
-  }
   // if (right)
   //   curState1 = nextStep;
   // else
   //   curState = nextStep;
   // if (!checkObjection(col, height)) {
   //   for (int t = 0; t < height; t++) {
-  //     int elem = ((figures[fig][rot][startPos[fig][rot] + t] << curState >>
+  //     int elem = ((figures[fig][rot][scope[fig] + t] << curState >>
   //                  curState1 >> mv) +
   //                 matrix[col + t]);
   //     // safe put
@@ -210,7 +225,7 @@ void move(int col, int prevStep, int nextStep, boolean right) {
   //     mx.setColumn(mapping[col + t], elem);
   //   }
   // } else {
-  //   Serial.println("HER");
+  //   ("HER");
   //   if (right)
   //     curState1 = prevStep;
   //   else
@@ -223,72 +238,202 @@ void move(int col, int prevStep, int nextStep, boolean right) {
 //     int elem = figures[fg][rt][startPos[fg][rt] + t] << curState >>
 //                curState1 >> mv;
 //     if ((elem & matrix[col + t]) != 0) {
-//       Serial.println("ROTATEOBJECTION");
+//       ("ROTATEOBJECTION");
 //       return true;
 //     }
 //   }
 //   return false;
 // }
 
-boolean isRotateAble(int rotated,int input){
-  if((rotated & input)!=0)
-    return false;
-  return true;
-}
-int rotate(int col, int heigh,int mvr) { //returns right-left movement factor
+boolean isRotateAble(int col,int rotated[]){
   int bias=0;
-  for(int i=startPos[fig][rot];i<startPos[fig][rot]+height;i++){
-    mx.setColumn(mapping[col+bias],matrix[col+bias]);
-    currentfigure[i]=0x0;
+  for(int i=scope[fig][0];i<=scope[fig][1];i++){
+    if((matrix[col+bias] & rotated[i]) != 0) return false;
     bias++;
   }
-  
+  return true;
+}
+int rotate(int col, int* currentFig,int mvr) { //returns right-left movement factor
+  int inRot=rot;
   if (rot < 3){
     rot += 1;
   }
   else{
     rot = 0;
   }
-  //put
-  height=calculateHeight(figures[fig][rot]);
-  int sm=0; //required to bound bias due to limit rotate
-  for(int i=startPos[fig][rot];i<startPos[fig][rot]+height;i++){
+
+  
+  int horizontalBias=0;
+  for(int i=scope[fig][0];i<=scope[fig][1];i++){
     int inElem=figures[fig][rot][i];
-    if(mv>=0){
-      int elem=figures[fig][rot][i] >> (mvr);
-      for(int t=sm;t<0;t++){
-        elem=(elem<<1) | 1;
-      }
+    if(mvr>0){
+      // currentFig[i]=figures[fig][rot][i] >> mvr;
+      int elem=figures[fig][rot][i] >> mvr;
       while(countOnes(inElem,8)!=countOnes(elem,8)){
         elem=(elem<<1) | 1;
-        sm--;
+        horizontalBias--;
       }
-      currentfigure[i]=elem;
-    }
-    else{
-      int elem=(figures[fig][rot][i] << (mvr*(-1)));
-
-    //   Serial.println(elem);
+    } else {
+      // currentFig[i]=figures[fig][rot][i] << -mvr;
+      int elem=figures[fig][rot][i] << -mvr;
       while(countOnes(inElem,8)!=countOnes(elem,8)){
         elem=elem>>1;
-        sm++;
+        horizontalBias++;
       }
-      currentfigure[i]=(figures[fig][rot][i] << (mvr*(-1))) >> sm;
-    // }
+
+    }
+    
+  }
+  Serial.println(horizontalBias);
+  int rotated[5];
+  for(int i=scope[fig][0];i<=scope[fig][1];i++){
+    int inElem=figures[fig][rot][i];
+    if(mv>0){
+      int elem=figures[fig][rot][i] >> (mvr);
+      int prp=elem<<(horizontalBias*(-1));
+      if(countOnes(prp,8)!=countOnes(inElem,8)){
+        for(int t=horizontalBias;t<0;t++){
+          elem=(elem<<1) | 1;
+        }
+        rotated[i]=elem;
+      } else rotated[i]=prp;
       
+    } else{
+      int elem=(figures[fig][rot][i] << (mvr*(-1))) >> horizontalBias;
+      rotated[i]=elem;
+    }
+    // mx.setColumn(mapping[col+bias],currentFig[i]+matrix[col+bias]);
+    // bias++;
+  }
+  if(isRotateAble(col,rotated)){
+    int bias=0;
+    for(int i=0;i<=5;i++){
+      mx.setColumn(mapping[col+bias],matrix[col+bias]);
+      currentFig[i]=0x0;
+      bias++;
+    }
+    bias=0;
+    for(int i=scope[fig][0];i<=scope[fig][1];i++){
+      currentFig[i]=rotated[i];
+      mx.setColumn(mapping[bias+col],currentFig[i]+matrix[col+bias]);
+      bias++;
+    }
+    // for(int i=scope[fig][0];i<=scope[fig][1];i++){
+    //   mx.setColumn(mapping[bias+col],currentFig[i]);
+    // }
+    height=calculateHeight(currentFig);
+    cl=scope[fig][0]-startPos[fig][rot];
+  } else{
+    rot=inRot;
+  }
+  return 0;
+  // Serial.println(col);
+  // int bias=0;
+  // for(int i=0;i<=5;i++){
+  //   mx.setColumn(mapping[col+bias-1],0x0);
+  //   currentfigure[i]=0x0;
+  //   bias++;
+  // }
+  // if (rot < 3){
+  //   rot += 1;
+  // }
+  // else{
+  //   rot = 0;
+  // }
+  // int newHeight=calculateHeight(figures[fig][rot]);
+  // bias=0;
+  // for(int i=0;i<5;i++){
+  //   currentfigure[i]=figures[fig][rot][i];
+  // }
+  // for(int i=startPos[fig][rot];i<startPos[fig][rot]+newHeight;i++){
+  //   mx.setColumn(mapping[bias+col],currentfigure[i]);
+  //   bias++;
+  // }
+  // return 0;
+
+
+  // int bias=0;
+  // // for(int i=startPos[fig][rot];i<startPos[fig][rot]+height;i++){
+  // //   mx.setColumn(mapping[col+bias],matrix[col+bias]);
+  // //   currentfigure[i]=0x0;
+  // //   bias++;
+  // // }
+  
+  // if (rot < 3){
+  //   rot += 1;
+  // }
+  // else{
+  //   rot = 0;
+  // }
+  // //put
+  // int newHeight=calculateHeight(figures[fig][rot]);
+  // int sm=0; //required to bound bias due to limit rotate
+  // int rotated[5];
+  // for(int i=startPos[fig][rot];i<startPos[fig][rot]+newHeight;i++){
+  //   int inElem=figures[fig][rot][i];
+  //   if(mv>=0){
+  //     int elem=figures[fig][rot][i] >> (mvr);
+  //     while(countOnes(inElem,8)!=countOnes(elem,8)){
+  //       elem=(elem<<1) | 1;
+  //       sm--;
+  //     }
+  //   }
+  //   else{
+  //     int elem=(figures[fig][rot][i] << (mvr*(-1)));
+  //     while(countOnes(inElem,8)!=countOnes(elem,8)){
+  //       elem=elem>>1;
+  //       sm++;
+  //     }
+  //   }
+  // }
+  // //final put
+  // for(int i=startPos[fig][rot];i<startPos[fig][rot]+newHeight;i++){
+  //   int inElem=figures[fig][rot][i];
+  //   if(mv>0){
+  //     int elem=figures[fig][rot][i] >> (mvr);
+  //     int prp=elem<<(sm*(-1));
+  //     if(countOnes(prp,8)!=countOnes(inElem,8)){
+  //       for(int t=sm;t<0;t++){
+  //         elem=(elem<<1) | 1;
+  //       }
+  //       rotated[i]=elem;
+  //     } else rotated[i]=prp;
+      
+  //   } else{
+  //     int elem=(figures[fig][rot][i] << (mvr*(-1))) >> sm;
+  //     rotated[i]=elem;
+  //   }
+  // }
+
+  // if(isRotateAble(col,rotated)){
+  //   int bias=0;
+  //   for(int i=startPos[fig][rot];i<startPos[fig][rot]+height;i++){ //clearing
+  //     mx.setColumn(mapping[col+bias],matrix[col+bias]);
+  //     currentfigure[i]=0x0;
+  //     bias++;
+  //   }
+  //   height=newHeight;
+  //   for(int i=startPos[fig][rot];i<startPos[fig][rot]+height;i++){
+  //     currentfigure[i]=rotated[i];
+  //   }
+
+
+  // bias=0;
+  // for(int i=startPos[fig][rot];i<startPos[fig][rot]+height;i++){
+  //   int elem=currentfigure[i]+matrix[col+bias];
  
-  }
-  }
-  bias=0;
-  Serial.println(startPos[0][0]);
-  for(int i=startPos[fig][rot];i<startPos[fig][rot]+height;i++){
-    int elem=currentfigure[i]+matrix[col+bias];
-    // Serial.println(currentfigure[i]);
-    mx.setColumn(mapping[col+bias],elem);
-    bias++;
-  }
-  return sm;
+  //   if(startPos[fig][rot]==2)
+  //     mx.setColumn(mapping[col+bias+1],elem);
+  //   else 
+  //     mx.setColumn(mapping[col+bias-1],elem);  
+  //   // mx.setColumn(mapping[col+bias+1],elem);
+  //   bias++;
+  // }
+  // col+=1;
+  // return sm;
+  
 }
+
 
 // one-click flags
 boolean flag1 = false;
@@ -306,7 +451,7 @@ void control_listener(void *pvParameters) {
     if (digitalRead(BUTTON_PIN) == LOW &&
         !flag1 && checkBoundings(false)) {
       flag1 = true;
-      move(currentColumn, curState, curState + 1, false);
+      move(currentColumn, currentfigure, false);
       mv--;
     }
     if (digitalRead(BUTTON_PIN) == HIGH) flag1 = false;
@@ -314,7 +459,7 @@ void control_listener(void *pvParameters) {
     // right
     if (digitalRead(4) == LOW && !flag2 && checkBoundings(true)) {
       flag2 = true;
-      move(currentColumn, curState1, curState1 + 1, true);
+      move(currentColumn, currentfigure, true);
       mv++;
     }
     if (digitalRead(4) == HIGH ) flag2 = false;
@@ -322,10 +467,26 @@ void control_listener(void *pvParameters) {
     // rotate
     if (digitalRead(16) == LOW && !flag3) {
       flag3 = true;
-      mv+=rotate(currentColumn, height,mv);
+      mv+=rotate(currentColumn, currentfigure,mv);
     }
     if (digitalRead(16) == HIGH) flag3 = false;
     vTaskDelay(50 / portTICK_RATE_MS);
+  }
+}
+
+void deleteAnimation(int* elemsToDel){
+  int ts=2;
+  int tx=1;
+  for(int t=0;t<16;t++){
+    while(elemsToDel[t]!=0){
+      Serial.println("huy");
+      int elem=elemsToDel[t]>>ts << tx;
+      mx.setColumn(mapping[t],elem);
+      ts+=2;
+      tx++;
+      elemsToDel[t]=elem;
+      delay(100);
+    }
   }
 }
 
@@ -346,7 +507,6 @@ void setup() {
 void loop() {
   // fig=rand() % 7;
   // rot=rand() % 3;
-
   for(int i=0;i<5;i++){
     currentfigure[i]=figures[fig][rot][i];
   }
@@ -356,80 +516,64 @@ void loop() {
   height = calculateHeight(currentfigure);
   boolean objection = false;
 
-  int rotateBias = 0;
   int currentCol = 0;
-  
-  for (size_t col = 0; col < 17 - height; col++) {
-    currentColumn = col;
-    // objection = checkObjection(col, height);
-
-    if (!checkObjection(col)) {
+  cl=scope[fig][0]-startPos[fig][rot];
+  Serial.println(cl);
+  for (int col=cl; col < 17 - height + cl; col++) {
+    if(!checkObjection(col)){
+      // Serial.println(col);
       int bias=0;
-      for(int i=startPos[fig][rot];i<startPos[fig][rot]+height;i++){
-        int elem=currentfigure[i]+matrix[col+bias];
-        mx.setColumn(mapping[col+bias],elem);
-        if(col!=0) mx.setColumn(mapping[col - 1], matrix[col - 1]);
+      for(int i=scope[fig][0];i<=scope[fig][1];i++){
+        mx.setColumn(mapping[col+bias],currentfigure[i]+matrix[col+bias]);
+        if(col!=0 && col>=0) mx.setColumn(mapping[col-1],matrix[col-1]);
         bias++;
       }
-      // for (int t = 0; t < height; t++) {
-      //   int elem = ((figures[fig][rot][startPos[fig][rot] + t] << curState >>
-      //                curState1 >> mv) +
-      //               matrix[col + t]);
-      //   // Serial.println(elem);
-      //   mx.setColumn(mapping[col + t], elem);                           // put
-      //   if (col != 0) mx.setColumn(mapping[col - 1], matrix[col - 1]);  // move
-      // }
-      // Serial.println();
-    // } 
-    // else
-    //   break;
-    currentCol = col;
-
-    delay(1000);
-  }
+      currentColumn=col;
+      delay(500);
+    }
   }
   int bias=0;
-   for(int i=startPos[fig][rot];i<startPos[fig][rot]+height;i++){
-        int elem=currentfigure[i]+matrix[currentCol+bias];
-        matrix[currentCol+bias]=elem;
-        Serial.println(currentCol+bias);
+   for(int i=scope[fig][0];i<=scope[fig][1];i++){
+        int elem=currentfigure[i]+matrix[currentColumn+bias];
+        matrix[currentColumn+bias]=elem;
+        // Serial.println(currentCol+bias);
         bias++;
   }
+  int elemToDel[16]={0};
+  boolean isDel=false;
+  for(int i=0;i<(sizeof(matrix)/sizeof(matrix[0]));i++){
+      if(countOnes(matrix[i],8)==8){
+        isDel=true;
+        elemToDel[i]=matrix[i];
+        matrix[i]=0x0;
+        for(int t=i;t>0;t--){
+          matrix[t]=matrix[t-1];
+        }
+      }
+  }
+  if(isDel){
+    deleteAnimation(elemToDel);
+    mx.clear();
+    for(int i=15;i>=0;i--){
+      // Serial.println(mapping[i],matrix[i+1]);
+      mx.setColumn(mapping[i],matrix[i]);
+    }
+  }
+  
 
-  // for (int t = 0; t < height; t++) {
-  //   int sum = (figures[fig][rot][startPos[fig][rot] + t] << curState >>
-  //              curState1 >> mv) +
-  //             matrix[currentCol + t];
-  //   while (countOnes(sum, 8) < countOnes(sum, 12)) {
-  //     sum = (sum >> 1) + matrix[currentCol + t];
-  //   }
-  //   matrix[currentCol + t] = sum;
-  // }
-  //delete line
   // for(int i=0;i<(sizeof(matrix)/sizeof(matrix[0]));i++){
   //   if(countOnes(matrix[i],8)==8){
-  //     //animation
-  //     int ts=matrix[i];
-  //     for(int t=2;t<=4;t++){
-  //       ts=ts>>t;
-  //       ts=ts<<t-1;
-  //       // ts=ts<<i+1;
-  //       mx.setColumn(mapping[i],ts);
-  //       delay(500);
+  //     matrix[i]=0x0;
+  //     for(int t=i+1;t>0;t--){
+  //       matrix[t]=matrix[t-2];
   //     }
-  //     matrix[i]=0;
-  //     for(int t=i;t>0;t--){
-  //       matrix[t]=matrix[t-1];
-  //     }
-  //   };
+  //   }
   // }
-  // // //re-render
-  // for(int i=0;i<(sizeof(matrix)/sizeof(matrix[0]))-1;i++){
-  //   mx.setColumn(mapping[i],matrix[i]);
-  // }
-  // Serial.println();
-  // curState = 0;
-  // curState1 = 0;
+  for(int i=0;i<(sizeof(matrix)/sizeof(matrix[0]));i++){
+    Serial.print(matrix[i]);
+    Serial.print(" ");
+  }
   rot = 0;
   mv = 0;
+  cl=0;
 }
