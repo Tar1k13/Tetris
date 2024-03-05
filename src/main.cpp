@@ -2,6 +2,7 @@
 #include <SPI.h>
 #include <TM1637Display.h>
 #include <MD_MAX72xx.h>
+#include <Constants.h>
 
 TM1637Display display = TM1637Display(25, 26);
 
@@ -10,8 +11,8 @@ TM1637Display display = TM1637Display(25, 26);
 #define HARDWARE_TYPE MD_MAX72XX::FC16_HW
 
 // Defining size, and output pins
-#define MAX_DEVICES 2
-#define CS_PIN 5
+// #define MAX_DEVICES 2
+// #define CS_PIN 5
 
 // MD_Parola Display = MD_Parola(HARDWARE_TYPE, CS_PIN, MAX_DEVICES);
 MD_MAX72XX mx = MD_MAX72XX(HARDWARE_TYPE, CS_PIN, MAX_DEVICES);
@@ -33,45 +34,9 @@ void mapn() {
 // int buttonStateRight = 0;
 // int buttonStateFlip = 0;
 
-int figures[7][4][5] = {{{0x0, 0x10, 0x18, 0x10, 0x0},  // T
-                         {0x0, 0x0, 0x38, 0x10, 0x0},
-                         {0x0, 0x10, 0x30, 0x10, 0x0},
-                         {0x0, 0x10, 0x38, 0x0, 0x0}},
-                        {{0x0, 0x8, 0x8, 0x8, 0x8},  // I
-                         {0x0, 0x0, 0x3C, 0x0, 0x0},
-                         {0x0, 0x8, 0x8, 0x8, 0x8},
-                         {0x0, 0x0, 0x3C, 0x0, 0x0}},
-                        {{0x0, 0x0, 0x18, 0x18, 0x0},  // O
-                         {0x0, 0x0, 0x18, 0x18, 0x0},
-                         {0x0, 0x0, 0x18, 0x18, 0x0},
-                         {0x0, 0x0, 0x18, 0x18, 0x0}},
-                        {{0x0, 0xC, 0x8, 0x8, 0x0},  // L
-                         {0x0, 0x0, 0x1C, 0x4, 0x0},
-                         {0x0, 0x8, 0x8, 0x18, 0x0},
-                         {0x0, 0x10, 0x1C, 0x0, 0x0}},
-                        {{0x0, 0x8, 0x8, 0xC, 0x0},  // J
-                         {0x0, 0x0, 0x1C, 0x10, 0x0},
-                         {0x0, 0x18, 0x8, 0x8, 0x0},
-                         {0x0, 0x4, 0x1C, 0x0, 0x0}},
-                        {{0x0, 0x8, 0xC, 0x4, 0x0},  // S
-                         {0x0, 0x0, 0xC, 0x18, 0x0},
-                         {0x0, 0x10, 0x18, 0x8, 0x0},
-                         {0x0, 0xC, 0x18, 0x0, 0x0}},
-                        {{0x0, 0x4, 0xC, 0x8, 0x0},  // Z
-                         {0x0, 0x0, 0x18, 0xC, 0x0},
-                         {0x0, 0x8, 0x18, 0x10, 0x0},
-                         {0x0, 0x18, 0xC, 0x0, 0x0}}};
-int scope[7][2]={{1,3},{1,4},{2,3},{1,3},{1,3},{1,3},{1,3}};
-const int startPos[7][4] = {{1, 2, 1, 1},   // T
-                      {1, 2, 1, 2},   // I
-                      {2, 2, 2, 2},   // O
-                      {1, 2, 1, 1},   // L
-                      {1, 2, 1, 1},   // J
-                      {1, 2, 1, 1},   // S
-                      {1, 2, 1, 1}};  // Z
-int curState = 0;       // current left move
-int curState1 = 0;      // current right move
-int fig = 1;            // current figure
+
+
+int fig = 0;            // current figure
 int rot = 0;            // current rotation
 int currentColumn = 0;  // current column
 int height = 0;         // current height
@@ -79,6 +44,9 @@ int mv = 0;             // current rotation mudslide due to rotation bondaries
 int cl=0;
 int currentfigure[5];   // current figure
 int matrix[17];
+int speed=500;
+int currentSpeed=500;
+
 int calculateHeight(int fig[]) {
   int counter = 0;
   for (size_t i = 0; i <= sizeof(fig); i++) {
@@ -271,36 +239,43 @@ void control_listener(void *pvParameters) {
     int height = calculateHeight(figures[fig][rot]);
 
     // left
-    if (digitalRead(BUTTON_PIN) == LOW &&
+    if (digitalRead(LEFT_BUTTON) == LOW &&
         !flag1 && checkBoundings(false)) {
       flag1 = true;
       move(currentColumn, currentfigure, false);
       mv--;
     }
-    if (digitalRead(BUTTON_PIN) == HIGH) flag1 = false;
+    if (digitalRead(LEFT_BUTTON) == HIGH) flag1 = false;
 
     // right
-    if (digitalRead(4) == LOW && !flag2 && checkBoundings(true)) {
+    if (digitalRead(RIGHT_BUTTON) == LOW && !flag2 && checkBoundings(true)) {
       flag2 = true;
       move(currentColumn, currentfigure, true);
       mv++;
     }
-    if (digitalRead(4) == HIGH ) flag2 = false;
+    if (digitalRead(RIGHT_BUTTON) == HIGH ) flag2 = false;
 
     // rotate
-    if (digitalRead(16) == LOW && !flag3) {
+    if (digitalRead(ROTATE_BUTTON) == LOW && !flag3) {
       flag3 = true;
       mv+=rotate(currentColumn, currentfigure,mv);
     }
-    if (digitalRead(16) == HIGH) flag3 = false;
-    vTaskDelay(50 / portTICK_RATE_MS);
+    if (digitalRead(ROTATE_BUTTON) == HIGH) flag3 = false;
+
+    //speed up
+    if(digitalRead(SPEED_BUTTON) == LOW)
+      currentSpeed=30;
+    else
+      currentSpeed=speed;
+
+    vTaskDelay(40 / portTICK_RATE_MS);
   }
 }
 
-void deleteAnimation(int* elemsToDel){
+void deleteAnimation(int* elemsToDel,int col,int heigh){
   int ts=2;
   int tx=1;
-  for(int t=0;t<16;t++){
+  for(int t=col;t<col+heigh;t++){
     while(elemsToDel[t]!=0){
       int elem=elemsToDel[t]>>ts << tx;
       mx.setColumn(mapping[t],elem);
@@ -312,20 +287,64 @@ void deleteAnimation(int* elemsToDel){
   }
 }
 
+void moveDown(int col){
+      int bias=0;
+      for(int i=scope[fig][0];i<=scope[fig][1];i++){
+        mx.setColumn(mapping[col+bias],currentfigure[i]+matrix[col+bias]);
+        if(col!=0 && col>=0) mx.setColumn(mapping[col-1],matrix[col-1]);
+        bias++;
+      }
+}
+
+void saveToMatrix(int *matrix){
+  int bias=0;
+   for(int i=scope[fig][0];i<=scope[fig][1];i++){
+        int elem=currentfigure[i]+matrix[currentColumn+bias];
+        matrix[currentColumn+bias]=elem;
+        bias++;
+  }
+}
+
+void deleteLine(int *matr,void (*deleteAnim)(int *elemToDelete,int col,int heigh),int heigh,int col){
+  int elemToDel[16]={0};
+  boolean isDel=false;
+  for(int i=col;i<col+heigh;i++){
+    Serial.println(countOnes(matr[i],8));
+      if(countOnes(matr[i],8)==8){
+        isDel=true;
+        elemToDel[i]=matr[i];
+        matr[i]=0x0;
+        for(int t=i;t>0;t--){
+          matr[t]=matr[t-1];
+        }
+      }
+  }
+  if(isDel){
+    deleteAnim(elemToDel,col,heigh);
+    for(int i=15;i>=0;i--){
+      // Serial.println(mapping[i],matrix[i+1]);
+      mx.setColumn(mapping[i],matr[i]);
+    }
+  }
+}
+
 void setup() {
   Serial.begin(9600);
+  randomSeed(analogRead(0));
   mx.begin();
   display.setBrightness(7);
   mapn();
   pinMode(BUTTON_PIN, INPUT_PULLUP);  // left button
   pinMode(4, INPUT_PULLUP);           // right button
   pinMode(16, INPUT_PULLUP);
+  pinMode(17, INPUT_PULLUP);
   xTaskCreate(control_listener, "calculate_water_temp", 2048, NULL, 2, NULL);
 }
 
 void loop() {
-  display.showNumberDec(56000);
-  fig=rand() % 7;
+  // display.showNumberDec(56000);
+  fig=random(7);
+  rot=random(3);
   for(int i=0;i<5;i++){
     currentfigure[i]=figures[fig][rot][i];
   }
@@ -333,62 +352,22 @@ void loop() {
   height = calculateHeight(currentfigure);
   boolean objection = false;
 
-  int currentCol = 0;
+  // int currentCol = 0;
   cl=scope[fig][0]-startPos[fig][rot];
-  Serial.println(cl);
+  // Serial.println(cl);
   for (int col=cl; col < 17 - height + cl; col++) {
-    if(!checkObjection(col)){
-      // Serial.println(col);
-      int bias=0;
-      for(int i=scope[fig][0];i<=scope[fig][1];i++){
-        mx.setColumn(mapping[col+bias],currentfigure[i]+matrix[col+bias]);
-        if(col!=0 && col>=0) mx.setColumn(mapping[col-1],matrix[col-1]);
-        bias++;
-      }
-      currentColumn=col;
-      delay(1500);
-    }
+      if(!checkObjection(col)){
+        moveDown(col);
+        currentColumn=col;
+        delay(currentSpeed);
+      } else break;
   }
-  int bias=0;
-   for(int i=scope[fig][0];i<=scope[fig][1];i++){
-        int elem=currentfigure[i]+matrix[currentColumn+bias];
-        matrix[currentColumn+bias]=elem;
-        // Serial.println(currentCol+bias);
-        bias++;
-  }
-  int elemToDel[16]={0};
-  boolean isDel=false;
-  for(int i=0;i<(sizeof(matrix)/sizeof(matrix[0]));i++){
-      if(countOnes(matrix[i],8)==8){
-        isDel=true;
-        elemToDel[i]=matrix[i];
-        matrix[i]=0x0;
-        for(int t=i;t>0;t--){
-          matrix[t]=matrix[t-1];
-        }
-      }
-  }
-  if(isDel){
-    deleteAnimation(elemToDel);
-    for(int i=15;i>=0;i--){
-      // Serial.println(mapping[i],matrix[i+1]);
-      mx.setColumn(mapping[i],matrix[i]);
-    }
-  }
-  
 
-  // for(int i=0;i<(sizeof(matrix)/sizeof(matrix[0]));i++){
-  //   if(countOnes(matrix[i],8)==8){
-  //     matrix[i]=0x0;
-  //     for(int t=i+1;t>0;t--){
-  //       matrix[t]=matrix[t-2];
-  //     }
-  //   }
-  // }
-  // for(int i=0;i<(sizeof(matrix)/sizeof(matrix[0]));i++){
-  //   Serial.print(matrix[i]);
-  //   Serial.print(" ");
-  // }
+  saveToMatrix(matrix);
+  Serial.println("Ha");
+  deleteLine(matrix,&deleteAnimation,height,currentColumn);
+
+  speed-=10;
   rot = 0;
   mv = 0;
   cl=0;
