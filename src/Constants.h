@@ -10,6 +10,9 @@
 #define RIGHT_BUTTON 4
 #define ROTATE_BUTTON 16
 #define SPEED_BUTTON 17
+#define SKIP_BUTTON 19
+
+
 
 int figures[7][4][5]={{{0x0, 0x10, 0x18, 0x10, 0x0},  // T
                          {0x0, 0x0, 0x38, 0x10, 0x0},
