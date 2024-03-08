@@ -189,26 +189,49 @@ void loop() {
     // int currentCol = 0;
     cl = scope[fig][0] - startPos[fig][rot];
     // Serial.println(cl);
-    for (int col = cl; col < 17 - height + cl; col++) {
-      if (!checkObjection(col,currentfigure,matrix,fig) && !isSpeed) {
-        // Serial.println(col);
-        moveDown(col,currentfigure,matrix,fig,mx);
-        currentColumn = col;
-        delay(currentSpeed);
-      } else
-        break;
-    }
-    if(!isSpeed){
-    saveToMatrix(matrix,currentColumn);
-    Serial.println("Ha");
-    deleteLine(matrix, &deleteAnimation, height, currentColumn);
-    speed -= 5;
-    currentSpeed = speed;
-    rot = 0;
-    mv = 0;
-    cl = 0;
-    } else{
-      isSpeed=false;
+    if(!isGameOver(currentfigure,fig,matrix,cl)){
+      for (int col = cl; col < 17 - height + cl; col++) {
+        if (!checkObjection(col,currentfigure,matrix,fig) && !isSpeed) {
+          // Serial.println(col);
+          moveDown(col,currentfigure,matrix,fig,mx);
+          currentColumn = col;
+          delay(currentSpeed);
+        } else
+          break;
+      }
+      if(!isSpeed){
+      saveToMatrix(matrix,currentColumn);
+      Serial.println("Ha");
+      deleteLine(matrix, &deleteAnimation, height, currentColumn);
+      speed -= 5;
+      currentSpeed = speed;
+      rot = 0;
+      mv = 0;
+      cl = 0;
+      } else{
+        isSpeed=false;
+      }
+    } else{  // game over
+      // mx.clear();
+      for(int i=15;i>=0;i--){
+        mx.setColumn(mapping[i],0xFF);
+        matrix[i]=0;
+        delay(80);
+      }
+      for(int i=0;i<15;i++){
+        mx.setColumn(mapping[i],0x0);
+        delay(80);
+      }
+      mx.clear();
+      fig = 0;            // current figure
+      rot = 0;            // current rotation
+      currentColumn = 0;  // current column
+      height = 0;         // current height
+      mv = 0;             // current rotation mudslide due to rotation bondaries
+      cl = 0;
+      speed = 500;
+      currentSpeed = 500;
+      delay(10000);
     }
   }
 }

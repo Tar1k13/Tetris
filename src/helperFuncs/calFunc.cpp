@@ -92,3 +92,11 @@ void deleteAnimation(int* elemsToDel, int col, int heigh,MD_MAX72XX mx) {
     }
   }
 }
+
+boolean isGameOver(int currentfigure[],int fig,int matrix[], int col){
+  if(checkObjection(col,currentfigure,matrix,fig) && col<=0){
+    Serial.println("GAMEOVER");
+    return true;
+  } 
+  return false;
+}
