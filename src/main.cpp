@@ -27,6 +27,7 @@ int currentfigure[5];  // current figure
 int matrix[17];
 int speed = 500;
 int currentSpeed = 500;
+boolean cont=true;      //start button listener
 
 // one-click flags
 boolean flag1 = false;
@@ -50,16 +51,6 @@ void deleteAnimation(int* elemsToDel, int col, int heigh) {
   }
 }
 
-// void moveDown(int col,int currentfigure[],int matrix[]) {
-//   int bias = 0;
-//   for (int i = scope[fig][0]; i <= scope[fig][1]; i++) {
-//     if (col + bias >= 0)
-//       mx.setColumn(mapping[col + bias], currentfigure[i] + matrix[col + bias]);
-//     if (col != 0 && col > 0) mx.setColumn(mapping[col - 1], matrix[col - 1]);
-//     bias++;
-//   }
-// }
-
 void saveToMatrix(int* matrix,int cCol) {
   int bias = 0;
   for (int i = scope[fig][0]; i <= scope[fig][1]; i++) {
@@ -67,10 +58,10 @@ void saveToMatrix(int* matrix,int cCol) {
     matrix[cCol + bias] = elem;
     bias++;
   }
-  for (int i = 0; i < 16; i++) {
-    Serial.print(matrix[i]);
-    Serial.print(" ");
-  }
+  // for (int i = 0; i < 16; i++) {
+  //   Serial.print(matrix[i]);
+  //   Serial.print(" ");
+  // }
 }
 
 void deleteLine(int* matr,
@@ -100,39 +91,50 @@ void deleteLine(int* matr,
 boolean isSpeed=false;
 void control_listener(void* pvParameters) {
   while (true) {
-    int height = calculateHeight(figures[fig][rot]);
+    // int height = calculateHeight(figures[fig][rot]);
 
     // left
     if (digitalRead(LEFT_BUTTON) == LOW && !flag1 && checkBoundings(false,currentfigure,fig)) {
-      flag1 = true;
-      move(currentColumn, currentfigure, false,fig,matrix,mx);
-      mv--;
+      if(cont){
+        flag1 = true;
+        move(currentColumn, currentfigure, false,fig,matrix,mx);
+        mv--;
+      }
     }
     if (digitalRead(LEFT_BUTTON) == HIGH) flag1 = false;
 
     // right
     if (digitalRead(RIGHT_BUTTON) == LOW && !flag2 && checkBoundings(true,currentfigure,fig)) {
-      flag2 = true;
-      move(currentColumn, currentfigure, true,fig,matrix,mx);
-      mv++;
+      if(cont){
+        flag2 = true;
+        move(currentColumn, currentfigure, true,fig,matrix,mx);
+        mv++;
+      } else cont=true;
+
     }
     if (digitalRead(RIGHT_BUTTON) == HIGH) flag2 = false;
 
     // rotate
     if (digitalRead(ROTATE_BUTTON) == LOW && !flag3) {
+      if(cont){
       flag3 = true;
       rotate(currentColumn, currentfigure, mv,fig,rot,matrix,mx,height,cl);
+      } else cont=true;
     }
     if (digitalRead(ROTATE_BUTTON) == HIGH) flag3 = false;
 
     // speed up
-    if(digitalRead(SPEED_BUTTON) == LOW)
-      currentSpeed=30;
-    else
+    if(digitalRead(SPEED_BUTTON) == LOW){
+      if(cont){
+        currentSpeed=30;
+      } else cont=true;
+     
+    } else
       currentSpeed=speed;
 
     // // skip
     if (digitalRead(SKIP_BUTTON) == LOW && !flag4) {
+      if(cont){
       flag4 = true;
       isSpeed=true;
       int cCol=0;
@@ -154,6 +156,8 @@ void control_listener(void* pvParameters) {
       rot = 0;
       mv = 0;
       cl = 0;
+      } else
+        cont=true;
 
     }
     if (digitalRead(SKIP_BUTTON) == HIGH) flag4 = false;
@@ -189,7 +193,7 @@ void loop() {
     // int currentCol = 0;
     cl = scope[fig][0] - startPos[fig][rot];
     // Serial.println(cl);
-    if(!isGameOver(currentfigure,fig,matrix,cl)){
+    if(!isGameOver(currentfigure,fig,matrix,cl) && cont){
       for (int col = cl; col < 17 - height + cl; col++) {
         if (!checkObjection(col,currentfigure,matrix,fig) && !isSpeed) {
           // Serial.println(col);
@@ -211,7 +215,7 @@ void loop() {
       } else{
         isSpeed=false;
       }
-    } else{  // game over
+    } else if(cont){  // game over
       // mx.clear();
       for(int i=15;i>=0;i--){
         mx.setColumn(mapping[i],0xFF);
@@ -231,7 +235,9 @@ void loop() {
       cl = 0;
       speed = 500;
       currentSpeed = 500;
-      delay(10000);
+      cont=false;
+    } else{               // wait for any button press
+      delay(40);
     }
   }
 }

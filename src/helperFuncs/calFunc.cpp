@@ -26,6 +26,7 @@ boolean checkObjection(int col,int currentfigure[],int matrix[],int fig) {
   for (int i = scope[fig][0]; i <= scope[fig][1]; i++) {
     int elem = currentfigure[i];
     if ((elem & matrix[col + bias]) != 0) {
+      Serial.println("HHAHAHAHAH");
       return true;
     }
     bias++;

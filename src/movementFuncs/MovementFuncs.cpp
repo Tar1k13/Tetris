@@ -24,7 +24,7 @@ void move(int col, int* currentfigure, boolean right,int fig,int matrix[],MD_MAX
   }
 }
 
-int rotate(int col, int* currentFig,int mvr,int fig,int &rot,int matrix[],MD_MAX72XX &mx,int &height, int &cl) {  // returns right-left movement factor
+int rotate(int col, int* currentFig,int &mvr,int &fig,int &rot,int matrix[],MD_MAX72XX &mx,int &height, int &cl) {  // returns right-left movement factor
   int inRot = rot;
   if (rot < 3) {
     rot += 1;
