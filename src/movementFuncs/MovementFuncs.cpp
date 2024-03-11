@@ -2,7 +2,7 @@
 #include "Constants.h"
 #include <helperFuncs/calFunc.h>
 
-void move(int col, int* currentfigure, boolean right,int fig,int matrix[],MD_MAX72XX &mx) {
+void move(int col, int currentfigure[], boolean right,int fig,int matrix[],MD_MAX72XX &mx) {
   int moved[5];
   if (right) {
     for (int i = scope[fig][0]; i <= scope[fig][1]; i++) {
@@ -24,7 +24,7 @@ void move(int col, int* currentfigure, boolean right,int fig,int matrix[],MD_MAX
   }
 }
 
-int rotate(int col, int* currentFig,int &mvr,int &fig,int &rot,int matrix[],MD_MAX72XX &mx,int &height, int &cl) {  // returns right-left movement factor
+int rotate(int col, int currentFig[],int &mvr,int fig,int &rot,int matrix[],MD_MAX72XX &mx,int &height, int &cl) {  // returns right-left movement factor
   int inRot = rot;
   if (rot < 3) {
     rot += 1;
@@ -35,21 +35,27 @@ int rotate(int col, int* currentFig,int &mvr,int &fig,int &rot,int matrix[],MD_M
   int horizontalBias = 0;
   for (int i = scope[fig][0]; i <= scope[fig][1]; i++) {
     int inElem = figures[fig][rot][i];
+    int holH=0;
     if (mvr > 0) {
       int elem = figures[fig][rot][i] >> mvr;
       while (countOnes(inElem, 8) != countOnes(elem, 8)) {
         elem = (elem << 1) | 1;
-        horizontalBias--;
+        Serial.println(elem);
+        holH--;
       }
+      if(holH<horizontalBias) horizontalBias--;
+
     } else {
       int elem = figures[fig][rot][i] << -mvr;
       while (countOnes(inElem, 8) != countOnes(elem, 8)) {
         elem = elem >> 1;
-        horizontalBias++;
+        holH++;
       }
+      if(holH>horizontalBias) horizontalBias++;
     }
   }
-  int rotated[5];
+  // Serial.println(horizontalBias);
+  int rotated[5]={0};
   for (int i = scope[fig][0]; i <= scope[fig][1]; i++) {
     int inElem = figures[fig][rot][i];
     if (mvr > 0) {
@@ -68,6 +74,11 @@ int rotate(int col, int* currentFig,int &mvr,int &fig,int &rot,int matrix[],MD_M
       rotated[i] = elem;
     }
   }
+  // for(int i=0;i<5;i++){
+  //   Serial.print(rotated[i]);
+  //   Serial.print(" ");
+  // }
+  Serial.println();
   if (isRotateAble(col, rotated,matrix,fig)) {
     int bias = 0;
     for (int i = 0; i <= 5; i++) {
@@ -94,7 +105,7 @@ void moveDown(int col,int currentfigure[],int matrix[],int fig,MD_MAX72XX &mx) {
   for (int i = scope[fig][0]; i <= scope[fig][1]; i++) {
     if (col + bias >= 0)
       mx.setColumn(mapping[col + bias], currentfigure[i] + matrix[col + bias]);
-    if (col != 0 && col > 0) mx.setColumn(mapping[col - 1], matrix[col - 1]);
+    if (col != 0 && mapping[col-1]<sizeof(mapping)/sizeof(int)) mx.setColumn(mapping[col - 1], matrix[col - 1]);
     bias++;
   }
 }

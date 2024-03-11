@@ -26,7 +26,6 @@ boolean checkObjection(int col,int currentfigure[],int matrix[],int fig) {
   for (int i = scope[fig][0]; i <= scope[fig][1]; i++) {
     int elem = currentfigure[i];
     if ((elem & matrix[col + bias]) != 0) {
-      Serial.println("HHAHAHAHAH");
       return true;
     }
     bias++;
@@ -79,10 +78,10 @@ boolean isRotateAble(int col, int rotated[], int matrix[],int fig) {
   return true;
 }
 
-void deleteAnimation(int* elemsToDel, int col, int heigh,MD_MAX72XX mx) {
+void deleteAnimation(int elemsToDel[], int col, int heigh,boolean isRts,MD_MAX72XX &mx) {
   int ts = 2;
   int tx = 1;
-  for (int t = col; t < col + heigh; t++) {
+  for (int t = 0; t < 16; t++) {
     while (elemsToDel[t] != 0) {
       int elem = elemsToDel[t] >> ts << tx;
       mx.setColumn(mapping[t], elem);
@@ -96,7 +95,6 @@ void deleteAnimation(int* elemsToDel, int col, int heigh,MD_MAX72XX mx) {
 
 boolean isGameOver(int currentfigure[],int fig,int matrix[], int col){
   if(checkObjection(col,currentfigure,matrix,fig) && col<=0){
-    Serial.println("GAMEOVER");
     return true;
   } 
   return false;
