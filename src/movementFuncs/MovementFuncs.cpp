@@ -25,6 +25,7 @@ void move(int col, int currentfigure[], boolean right,int fig,int matrix[],MD_MA
 }
 
 int rotate(int col, int currentFig[],int &mvr,int fig,int &rot,int matrix[],MD_MAX72XX &mx,int &height, int &cl) {  // returns right-left movement factor
+  // Serial.println(mvr);
   int inRot = rot;
   if (rot < 3) {
     rot += 1;
@@ -40,37 +41,26 @@ int rotate(int col, int currentFig[],int &mvr,int fig,int &rot,int matrix[],MD_M
       int elem = figures[fig][rot][i] >> mvr;
       while (countOnes(inElem, 8) != countOnes(elem, 8)) {
         elem = (elem << 1) | 1;
-        holH--;
+        horizontalBias--;
       }
-      if(holH<horizontalBias) horizontalBias--;
-
-      
-
     } else {
       int elem = figures[fig][rot][i] << -mvr;
+      // Serial.println(elem);
       while (countOnes(inElem, 8) != countOnes(elem, 8)) {
         elem = elem >> 1;
-        holH++;
+        horizontalBias++;
       }
-      if(holH>horizontalBias) horizontalBias++;
     }
   }
   int rotated[5]={0};
   for (int i = scope[fig][0]; i <= scope[fig][1]; i++) {
     int inElem = figures[fig][rot][i];
     if (mvr > 0) {
-      int elem = figures[fig][rot][i] >> (mvr);
-      int prp = elem << (horizontalBias * (-1));
-      if (countOnes(prp, 8) != countOnes(inElem, 8)) {
-        for (int t = horizontalBias; t < 0; t++) {
-          elem = (elem << 1) | 1;
-        }
-        rotated[i] = elem;
-      } else
-        rotated[i] = prp;
+      int elem = figures[fig][rot][i] << (-horizontalBias) >> mvr;
+      rotated[i]=elem;
 
     } else {
-      int elem = (figures[fig][rot][i] << (mvr * (-1))) >> horizontalBias;
+      int elem = (figures[fig][rot][i] << (-mvr)) >> horizontalBias;
       rotated[i] = elem;
     }
   }
@@ -89,6 +79,8 @@ int rotate(int col, int currentFig[],int &mvr,int fig,int &rot,int matrix[],MD_M
   } else {
     rot = inRot;
   }
+  // Serial.println(mvr);
+  mvr+=horizontalBias;
   return 0;
 }
 

@@ -56,11 +56,12 @@ void saveToMatrix(int* matrix, int cCol) {
 boolean isSpeed = false;
 void mainMoving(void* pvParameters) {
   while (1) {
-    Serial.println("zip hi");
     if (cont) {  // start operator
 
-      fig = random(7);
-      rot = random(3);
+      // fig = random(7);
+      // rot = random(3);
+      fig=4;
+      rot=0;
       for (int i = 0; i < 5; i++) {
         currentfigure[i] = figures[fig][rot][i];
       }
@@ -81,7 +82,6 @@ void mainMoving(void* pvParameters) {
         }
 
         saveToMatrix(matrix, currentColumn);
-        Serial.println("Ha");
         deleteLine(matrix, &deleteAnimation, height, currentColumn, true,mainPointCounter,currentColumn,display,mx);
         speed -= 5;
         currentSpeed = speed;
