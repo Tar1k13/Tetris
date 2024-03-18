@@ -130,8 +130,8 @@ void deleteLine(int* matr,
   int elemToDel[16] = {0};
   boolean isDel = false;
   int delColNum = 0;  // counter
-
   for (int i = col; i <= col + heigh; i++) {
+    // Serial.println(countOnes(matr[i],8));
     if (countOnes(matr[i], 8) == 8) {
       delColNum++;
       isDel = true;

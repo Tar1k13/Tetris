@@ -58,10 +58,10 @@ void mainMoving(void* pvParameters) {
   while (1) {
     if (cont) {  // start operator
 
-      // fig = random(7);
-      // rot = random(3);
-      fig=4;
-      rot=0;
+      fig = random(7);
+      rot = random(3);
+      // fig=4;
+      // rot=0;
       for (int i = 0; i < 5; i++) {
         currentfigure[i] = figures[fig][rot][i];
       }
@@ -168,7 +168,7 @@ void control_listener(void* pvParameters) {
           break;
       }
       saveToMatrix(matrix, cCol);
-      deleteLine(matrix, &deleteAnimation, height, currentColumn, true,mainPointCounter,currentColumn,display,mx);
+      deleteLine(matrix, &deleteAnimation, height, cCol, true,mainPointCounter,cCol,display,mx);
       speed -= 5;
       currentSpeed = speed;
       rot = 0;
