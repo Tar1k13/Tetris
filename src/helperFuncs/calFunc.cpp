@@ -78,24 +78,77 @@ boolean isRotateAble(int col, int rotated[], int matrix[],int fig) {
   return true;
 }
 
-void deleteAnimation(int elemsToDel[], int col, int heigh,boolean isRts,MD_MAX72XX &mx) {
-  int ts = 2;
-  int tx = 1;
-  for (int t = 0; t < 16; t++) {
-    while (elemsToDel[t] != 0) {
-      int elem = elemsToDel[t] >> ts << tx;
-      mx.setColumn(mapping[t], elem);
-      ts += 2;
-      tx++;
-      elemsToDel[t] = elem;
-      delay(100);
-    }
-  }
-}
-
 boolean isGameOver(int currentfigure[],int fig,int matrix[], int col){
   if(checkObjection(col,currentfigure,matrix,fig) && col<=0){
     return true;
   } 
   return false;
+}
+
+void deleteAnimation(int *elemsToDel, int col, int heigh, boolean isRts,MD_MAX72XX &mx) {
+  int ts = 2;
+  int tx = 1;
+  int hp = 0;
+  while (hp < 4) {
+    for (int t = col; t < col + heigh; t++) {
+      if (elemsToDel[t] != 0) {
+        int elem = elemsToDel[t] >> ts << tx;
+        mx.setColumn(mapping[t], elem);
+        elemsToDel[t] = elem;
+      }
+    }
+    ts += 2;
+    tx++;
+    hp++;
+    if (!isRts) {
+      delay(100);
+    } else {
+      vTaskDelay(100 / portTICK_RATE_MS);
+    }
+  }
+}
+
+int getColFactor(int numToDel, int level) {
+  switch (numToDel) {
+    case 2:
+      return (40 * (level + 1));
+    case 3:
+      return (100 * (level + 1));
+    case 4:
+      return (300 * (level + 1));
+    case 5:
+      return (1200 * (level + 1));
+    default:
+      return level + 1;
+  }
+}
+
+void deleteLine(int* matr,
+                void (*deleteAnim)(int* elemToDelete, int col, int heigh,
+                                   boolean isRts,MD_MAX72XX &mx),
+                int heigh, int col, boolean isRts,int &mainPointCounter,int currentColumn,TM1637Display &display,MD_MAX72XX &mx) {
+  int elemToDel[16] = {0};
+  boolean isDel = false;
+  int delColNum = 0;  // counter
+
+  for (int i = col; i <= col + heigh; i++) {
+    if (countOnes(matr[i], 8) == 8) {
+      delColNum++;
+      isDel = true;
+      elemToDel[i] = matr[i];
+      matr[i] = 0x0;
+      for (int t = i; t > 0; t--) {
+        matr[t] = matr[t - 1];
+      }
+    }
+  }
+  if (isDel) {
+    deleteAnim(elemToDel, col, heigh, isRts,mx);
+    for (int i = 15; i >= 0; i--) {
+      // Serial.println(mapping[i],matrix[i+1]);
+      mx.setColumn(mapping[i], matr[i]);
+    }
+    mainPointCounter += getColFactor(delColNum, currentColumn);
+    display.showNumberDec(mainPointCounter);
+  }
 }

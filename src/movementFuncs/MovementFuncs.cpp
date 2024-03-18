@@ -40,10 +40,11 @@ int rotate(int col, int currentFig[],int &mvr,int fig,int &rot,int matrix[],MD_M
       int elem = figures[fig][rot][i] >> mvr;
       while (countOnes(inElem, 8) != countOnes(elem, 8)) {
         elem = (elem << 1) | 1;
-        Serial.println(elem);
         holH--;
       }
       if(holH<horizontalBias) horizontalBias--;
+
+      
 
     } else {
       int elem = figures[fig][rot][i] << -mvr;
@@ -54,7 +55,6 @@ int rotate(int col, int currentFig[],int &mvr,int fig,int &rot,int matrix[],MD_M
       if(holH>horizontalBias) horizontalBias++;
     }
   }
-  // Serial.println(horizontalBias);
   int rotated[5]={0};
   for (int i = scope[fig][0]; i <= scope[fig][1]; i++) {
     int inElem = figures[fig][rot][i];
@@ -74,20 +74,12 @@ int rotate(int col, int currentFig[],int &mvr,int fig,int &rot,int matrix[],MD_M
       rotated[i] = elem;
     }
   }
-  // for(int i=0;i<5;i++){
-  //   Serial.print(rotated[i]);
-  //   Serial.print(" ");
-  // }
-  Serial.println();
   if (isRotateAble(col, rotated,matrix,fig)) {
     int bias = 0;
-    for (int i = 0; i <= 5; i++) {
+    for (int i = scope[fig][0]; i <= scope[fig][1]; i++) {
       mx.setColumn(mapping[col + bias], matrix[col + bias]);
       currentFig[i] = 0x0;
-      bias++;
-    }
-    bias = 0;
-    for (int i = scope[fig][0]; i <= scope[fig][1]; i++) {
+
       currentFig[i] = rotated[i];
       mx.setColumn(mapping[bias + col], currentFig[i] + matrix[col + bias]);
       bias++;

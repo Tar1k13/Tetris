@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 #include <MD_MAX72xx.h>
+#include <TM1637Display.h>
 
 int calculateHeight(int fig[]);
 int countOnes(int num, int numBits);
@@ -12,6 +13,10 @@ boolean checkBoundings(boolean right,int currentfigure[],int fig);
 boolean isRotateAble(int col, int rotated[], int matrix[],int fig);
 boolean isGameOver(int currentfigure[],int fig,int matrix[],int col);
 
-// void deleteAnimation(int* elemsToDel, int col, int heigh, MD_MAX72XX &mx);
+void deleteLine(int* matr,
+                void (*deleteAnim)(int* elemToDelete, int col, int heigh,
+                                   boolean isRts,MD_MAX72XX &mx),
+                int heigh, int col, boolean isRts,int &mainPointCounter,int currentColumn,TM1637Display &display,MD_MAX72XX &mx);
+void deleteAnimation(int *elemsToDel, int col, int heigh, boolean isRts,MD_MAX72XX &mx);
 
 #endif
