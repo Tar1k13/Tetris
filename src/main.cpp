@@ -60,8 +60,6 @@ void mainMoving(void* pvParameters) {
 
       fig = random(7);
       rot = random(3);
-      // fig=4;
-      // rot=0;
       for (int i = 0; i < 5; i++) {
         currentfigure[i] = figures[fig][rot][i];
       }
@@ -156,19 +154,35 @@ void control_listener(void* pvParameters) {
 
     // // skip
     if (digitalRead(SKIP_BUTTON) == LOW && !flag4 && cont) {
+      flag4=true;
       vTaskDelete(xHandle);
 
       int cCol = 0;
       cl = scope[fig][0] - startPos[fig][rot];
+      uint8_t bias = 0;
+      for (int i = scope[fig][0]; i <= scope[fig][1]; i++) {
+        mx.setColumn(mapping[currentColumn + bias],
+                     matrix[currentColumn + bias]);
+        bias++;
+      }
+
       for (int col = cl + currentColumn; col < 17 - height + cl; col++) {
-        if (!checkObjection(col, currentfigure, matrix, fig)) {
-          moveDown(col, currentfigure, matrix, fig, mx);
+        if (checkObjection(col + 1, currentfigure, matrix, fig)) {
           cCol = col;
-        } else
           break;
+        }
+        cCol = col;
+      }
+      bias = 0;
+      for (int i = scope[fig][0]; i <= scope[fig][1]; i++) {
+        mx.setColumn(mapping[cCol + bias],
+                     currentfigure[i] + matrix[cCol + bias]);
+
+        bias++;
       }
       saveToMatrix(matrix, cCol);
-      deleteLine(matrix, &deleteAnimation, height, cCol, true,mainPointCounter,cCol,display,mx);
+      deleteLine(matrix, &deleteAnimation, height, cCol, true, mainPointCounter,
+                 cCol, display, mx);
       speed -= 5;
       currentSpeed = speed;
       rot = 0;
@@ -195,10 +209,11 @@ void control_listener(void* pvParameters) {
 
 void setup() {
   Serial.begin(9600);
-  randomSeed(analogRead(0));  // randomizer
   mx.begin();                 // led matrix initialization
   display.setBrightness(7);
   display.showNumberDec(0000);
+
+  randomSeed(analogRead(0));  // randomizer
   pinMode(LEFT_BUTTON, INPUT_PULLUP);
   pinMode(RIGHT_BUTTON, INPUT_PULLUP);
   pinMode(ROTATE_BUTTON, INPUT_PULLUP);
