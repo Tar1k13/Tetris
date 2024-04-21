@@ -8,8 +8,8 @@
       "type": "wokwi-max7219-matrix",
       "id": "matrix2",
       "top": 48.6,
-      "left": -462.96,
-      "attrs": { "chain": "2" }
+      "left": -465.38,
+      "attrs": { "chain": "1" }
     },
     {
       "type": "wokwi-tm1637-7segment",
@@ -56,6 +56,71 @@
       "top": -166.6,
       "left": 355.2,
       "attrs": { "color": "blue" }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "r1",
+      "top": 273.6,
+      "left": 239.45,
+      "rotate": 90,
+      "attrs": { "value": "1000" }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "r2",
+      "top": 273.6,
+      "left": 306.65,
+      "rotate": 90,
+      "attrs": { "value": "1000" }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "r3",
+      "top": 273.6,
+      "left": 153.05,
+      "rotate": 90,
+      "attrs": { "value": "1000" }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "led1",
+      "top": 318.4,
+      "left": 167.4,
+      "rotate": 180,
+      "attrs": { "color": "red" }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "led2",
+      "top": 318.4,
+      "left": 253.8,
+      "rotate": 180,
+      "attrs": { "color": "orange" }
+    },
+    { "type": "wokwi-gnd", "id": "gnd3", "top": 422.4, "left": 277.8, "attrs": {} },
+    {
+      "type": "wokwi-led",
+      "id": "led3",
+      "top": 318.4,
+      "left": 321,
+      "rotate": 180,
+      "attrs": { "color": "limegreen" }
+    },
+    { "type": "wokwi-gnd", "id": "gnd4", "top": 259.2, "left": 527.4, "attrs": {} },
+    { "type": "wokwi-vcc", "id": "vcc3", "top": -210.44, "left": -57.6, "attrs": {} },
+    {
+      "type": "wokwi-buzzer",
+      "id": "bz1",
+      "top": -199.2,
+      "left": 49.8,
+      "attrs": { "volume": "0.1" }
+    },
+    {
+      "type": "wokwi-max7219-matrix",
+      "id": "matrix1",
+      "top": 48.6,
+      "left": -600.99,
+      "attrs": { "chain": "1" }
     }
   ],
   "connections": [
@@ -71,15 +136,32 @@
     [ "matrix2:GND", "gnd1:GND", "black", [ "h0" ] ],
     [ "sevseg1:GND", "gnd2:GND", "black", [ "h0" ] ],
     [ "esp:2", "btn1:2.l", "blue", [ "h182.4", "v-28.8" ] ],
-    [ "btn1:1.l", "esp:GND.2", "black", [ "h-48", "v-96", "h-153.6" ] ],
     [ "esp:4", "btn2:2.l", "blue", [ "h163.2", "v-86.4" ] ],
-    [ "btn2:1.l", "esp:GND.2", "black", [ "v-28.8", "h-211.2" ] ],
     [ "esp:16", "btn3:2.l", "blue", [ "h105.6", "v105.4" ] ],
-    [ "btn3:1.l", "esp:GND.2", "black", [ "h-76.8", "v-192", "h-134.4" ] ],
     [ "btn4:2.l", "esp:17", "yellow", [ "h-172.8", "v153.8" ] ],
-    [ "btn4:1.l", "esp:GND.2", "black", [ "h0" ] ],
     [ "btn5:2.l", "esp:19", "purple", [ "h-182.4", "v192.2" ] ],
-    [ "btn5:1.l", "esp:GND.2", "black", [ "h-220.8", "v144" ] ]
+    [ "esp:27", "r3:1", "green", [ "h-47.85", "v163.2" ] ],
+    [ "esp:14", "r1:1", "green", [ "h-38.25", "v144", "h211.2" ] ],
+    [ "esp:12", "r2:1", "green", [ "v0", "h-28.65", "v124.8", "h240" ] ],
+    [ "r3:2", "led1:A", "green", [ "h0" ] ],
+    [ "r1:2", "led2:A", "green", [ "h0" ] ],
+    [ "led1:C", "gnd3:GND", "green", [ "h18.8", "v76.8" ] ],
+    [ "led2:C", "gnd3:GND", "green", [ "v0", "h28.4" ] ],
+    [ "r2:2", "led3:A", "green", [ "h0" ] ],
+    [ "led3:C", "gnd3:GND", "green", [ "v0", "h9.2", "v96" ] ],
+    [ "btn3:1.l", "gnd4:GND", "black", [ "h0", "v-28.8", "h182.4" ] ],
+    [ "btn1:1.l", "gnd4:GND", "black", [ "v-19.2", "h201.6", "v201.6" ] ],
+    [ "btn2:1.l", "gnd4:GND", "black", [ "v-19.2", "h201.6", "v278.4" ] ],
+    [ "btn4:1.l", "gnd4:GND", "black", [ "h0", "v-19.2", "h211.2", "v364.8" ] ],
+    [ "btn5:1.l", "gnd4:GND", "black", [ "h0", "v-19.2", "h220.8", "v432" ] ],
+    [ "esp:5V", "vcc3:VCC", "red", [ "h0" ] ],
+    [ "esp:33", "bz1:2", "green", [ "h-19.05", "v-163.2", "h57.6" ] ],
+    [ "bz1:1", "gnd4:GND", "black", [ "v0", "h-48", "v-96", "h566.4", "v470.4" ] ],
+    [ "matrix2:V+.2", "matrix1:V+", "green", [ "v0" ] ],
+    [ "matrix2:GND.2", "matrix1:GND", "black", [ "h-26.22" ] ],
+    [ "matrix2:DOUT", "matrix1:DIN", "green", [ "h0" ] ],
+    [ "matrix2:CS.2", "matrix1:CS", "green", [ "h0" ] ],
+    [ "matrix2:CLK.2", "matrix1:CLK", "green", [ "h0" ] ]
   ],
   "dependencies": {}
 }

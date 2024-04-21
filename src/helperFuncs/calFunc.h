@@ -4,6 +4,7 @@
 #include <Arduino.h>
 #include <MD_MAX72xx.h>
 #include <TM1637Display.h>
+#include <music/music.h>
 
 int calculateHeight(int fig[]);
 int countOnes(int num, int numBits);

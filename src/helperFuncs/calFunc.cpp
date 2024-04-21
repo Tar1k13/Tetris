@@ -4,7 +4,7 @@
 
 int calculateHeight(int fig[]){
     int counter = 0;
-    for (size_t i = 0; i <= sizeof(fig); i++) {
+    for (size_t i = 0; i < FIGURE_LEN; i++) {
         if (fig[i] != 0) counter++;
     }
     return counter;
@@ -93,7 +93,7 @@ void deleteAnimation(int *elemsToDel, int col, int heigh, boolean isRts,MD_MAX72
     for (int t = col; t < col + heigh; t++) {
       if (elemsToDel[t] != 0) {
         int elem = elemsToDel[t] >> ts << tx;
-        mx.setColumn(mapping[t], elem);
+        mx.setColumn(t, elem);
         elemsToDel[t] = elem;
       }
     }
@@ -143,12 +143,15 @@ void deleteLine(int* matr,
     }
   }
   if (isDel) {
+    
     deleteAnim(elemToDel, col, heigh, isRts,mx);
     for (int i = 15; i >= 0; i--) {
       // Serial.println(mapping[i],matrix[i+1]);
-      mx.setColumn(mapping[i], matr[i]);
+      mx.setColumn(i, matr[i]);
     }
     mainPointCounter += getColFactor(delColNum, currentColumn);
+    play_game_over();
     display.showNumberDec(mainPointCounter);
+
   }
 }
