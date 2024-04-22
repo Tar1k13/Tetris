@@ -5,6 +5,7 @@
 #include <MD_MAX72xx.h>
 #include <TM1637Display.h>
 #include <music/music.h>
+#include "Constants.h"
 
 int calculateHeight(int fig[]);
 int countOnes(int num, int numBits);
@@ -16,8 +17,8 @@ boolean isGameOver(int currentfigure[],int fig,int matrix[],int col);
 
 void deleteLine(int* matr,
                 void (*deleteAnim)(int* elemToDelete, int col, int heigh,
-                                   boolean isRts,MD_MAX72XX &mx),
+                                   boolean isRts),
                 int heigh, int col, boolean isRts,int &mainPointCounter,int currentColumn,TM1637Display &display,MD_MAX72XX &mx);
-void deleteAnimation(int *elemsToDel, int col, int heigh, boolean isRts,MD_MAX72XX &mx);
+void deleteAnimation(int *elemsToDel, int col, int heigh, boolean isRts);
 
 #endif

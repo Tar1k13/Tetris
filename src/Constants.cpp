@@ -38,3 +38,7 @@ const int startPos[7][4] = {
                       {1, 2, 1, 1},   // S
                       {1, 2, 1, 1}};  // Z
 int mapping[16] = {15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0};
+
+MD_MAX72XX mx = MD_MAX72XX(HARDWARE_TYPE, DATA_PIN, CLK_PIN, CS_PIN, MAX_DEVICES);
+
+TM1637Display display = TM1637Display(25, 26);

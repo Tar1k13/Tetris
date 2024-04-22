@@ -1,5 +1,5 @@
-#include <helperFuncs/calFunc.h>
-#include "Constants.h"
+#include <Tetris/helperFuncs/calFunc.h>
+
 // #include <Constants.h>
 
 int calculateHeight(int fig[]){
@@ -85,7 +85,7 @@ boolean isGameOver(int currentfigure[],int fig,int matrix[], int col){
   return false;
 }
 
-void deleteAnimation(int *elemsToDel, int col, int heigh, boolean isRts,MD_MAX72XX &mx) {
+void deleteAnimation(int *elemsToDel, int col, int heigh, boolean isRts) {
   int ts = 2;
   int tx = 1;
   int hp = 0;
@@ -125,7 +125,7 @@ int getColFactor(int numToDel, int level) {
 
 void deleteLine(int* matr,
                 void (*deleteAnim)(int* elemToDelete, int col, int heigh,
-                                   boolean isRts,MD_MAX72XX &mx),
+                                   boolean isRts),
                 int heigh, int col, boolean isRts,int &mainPointCounter,int currentColumn,TM1637Display &display,MD_MAX72XX &mx) {
   int elemToDel[16] = {0};
   boolean isDel = false;
@@ -144,7 +144,7 @@ void deleteLine(int* matr,
   }
   if (isDel) {
     
-    deleteAnim(elemToDel, col, heigh, isRts,mx);
+    deleteAnim(elemToDel, col, heigh, isRts);
     for (int i = 15; i >= 0; i--) {
       // Serial.println(mapping[i],matrix[i+1]);
       mx.setColumn(i, matr[i]);

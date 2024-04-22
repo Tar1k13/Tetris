@@ -1,8 +1,6 @@
-#include <movementFuncs/MovementFuncs.h>
-#include "Constants.h"
-#include <helperFuncs/calFunc.h>
+#include <Tetris/movementFuncs/MovementFuncs.h>
 
-void move(int col, int currentfigure[], boolean right,int fig,int matrix[],MD_MAX72XX &mx) {
+void move(int col, int currentfigure[], boolean right,int fig,int matrix[]) {
   int moved[FIGURE_LEN];
   if (right) {
     for (int i = scope[fig][0]; i <= scope[fig][1]; i++) {
@@ -23,7 +21,7 @@ void move(int col, int currentfigure[], boolean right,int fig,int matrix[],MD_MA
   }
 }
 
-int rotate(int col, int currentFig[],int &mvr,int fig,int &rot,int matrix[],MD_MAX72XX &mx,int &height, int &cl) {  // returns right-left movement factor
+int rotate(int col, int currentFig[],int &mvr,int fig,int &rot,int matrix[],int &height, int &cl) {  // returns right-left movement factor
   int inRot = rot;
   if (rot < 3) {  //set current rotation
     rot += 1;
@@ -82,7 +80,7 @@ int rotate(int col, int currentFig[],int &mvr,int fig,int &rot,int matrix[],MD_M
   return 0;
 }
 
-void moveDown(int col,int currentfigure[],int matrix[],int fig,MD_MAX72XX &mx) {
+void moveDown(int col,int currentfigure[],int matrix[],int fig) {
   int bias = 0;
   for (int i = scope[fig][0]; i <= scope[fig][1]; i++) {
     if (col + bias >= 0)

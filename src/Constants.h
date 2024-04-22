@@ -3,6 +3,7 @@
 
 #include <MD_MAX72xx.h>
 #include <Arduino.h>
+#include <TM1637Display.h>
 // Defining size, and output pins
 #define MAX_DEVICES 2
 #define CS_PIN 5
@@ -26,7 +27,11 @@
 
 #define FIGURE_LEN 5
 
+#define HARDWARE_TYPE MD_MAX72XX::FC16_HW
 
+
+extern MD_MAX72XX mx;
+extern TM1637Display display; 
 
 extern int figures[7][4][5];
 extern int scope[7][2];
