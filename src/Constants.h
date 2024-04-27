@@ -38,6 +38,11 @@ extern int scope[7][2];
 extern const int startPos[7][4];
 extern int mapping[16];
 
+extern const uint8_t IMAGES[][8];
+
+extern TaskHandle_t xHandle;
+extern TaskHandle_t xSnakeHandle;
+
 typedef struct Data{
   MD_MAX72XX dsp;
   TaskHandle_t handle;
