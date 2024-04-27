@@ -36,9 +36,6 @@ void test_control(void *pvParameters){
     if (digitalRead(LEFT_BUTTON) == LOW && !fl && currentDirectionPrsd!=TOP){ //bottom
       fl=true;
       currentDirectionPrsd=BOTTOM;
-      // cornerPosition pos={posX,posY};
-      // cornerQueue.push(&pos);
-      // removeDirQueue.push(&BOTTOM);
     }
     if(fl && digitalRead(LEFT_BUTTON) == HIGH){
       fl=false;

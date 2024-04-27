@@ -12,10 +12,10 @@
 
 
 // Defining buttons pins
-#define LEFT_BUTTON 2
+#define LEFT_BUTTON 21
 #define RIGHT_BUTTON 4
-#define ROTATE_BUTTON 16
-#define SPEED_BUTTON 17
+#define ROTATE_BUTTON 32
+#define SPEED_BUTTON 34
 #define SKIP_BUTTON 19
 #define MUTE_BUTTON 35
 #define RED_LED 27

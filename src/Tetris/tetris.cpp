@@ -1,24 +1,19 @@
 #include <Tetris/tetris.h>
 
 
-int fig,
-    rot,
-    currentColumn,
-    height,
-    mv,
+int fig,                       // current figure
+    rot,                       // current rotation
+    currentColumn,             // current column
+    height,                    // current height
+    mv,                        // current rotation mudslide due to rotation bondaries
     cl,
-    mainPointCounter = 0;            // current figure
-// int rot = 0;            // current rotation
-// int currentColumn = 0;  // current column
-// int height = 0;         // current height
-// int mv = 0;             // current rotation mudslide due to rotation bondaries
-// int cl = 0;
+    mainPointCounter = 0;           
+
 int currentfigure[5];  // current figure
 int matrix[17];
 int speed = 500;
 int currentSpeed = 500;
 boolean cont = true;  // start button listener
-// int mainPointCounter = 0;
 
 // one-click flags
 boolean flag1 = false;
