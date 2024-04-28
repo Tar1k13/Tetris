@@ -41,7 +41,11 @@ extern int mapping[16];
 extern const uint8_t IMAGES[][8];
 
 extern TaskHandle_t xHandle;
+extern TaskHandle_t xTetrisControlHandle;
 extern TaskHandle_t xSnakeHandle;
+extern TaskHandle_t xSnakeControlHandle;
+
+extern bool run_flag;
 
 typedef struct Data{
   MD_MAX72XX dsp;

@@ -39,7 +39,7 @@ void saveToMatrix(int* matrix, int cCol) {
 boolean isSpeed = false;
 void mainMoving(void* pvParameters) {
   while (1) {
-    if (cont) {  // start operator
+    // if (cont) {  // start operator
 
       fig = random(7);
       rot = random(3);
@@ -92,11 +92,14 @@ void mainMoving(void* pvParameters) {
         cont = false;
         mainPointCounter = 0;
         // display.showNumberDec(0);
+        display.showNumberDec(0,true);
+        setup_select();
+        vTaskDelete(xHandle);
+        vTaskDelete(xTetrisControlHandle);
+        
       }
-    } else {
-      vTaskDelay(40);
-    }
-  }
+    } 
+  // }
 }
 
 void control_listener(void* pvParameters) {

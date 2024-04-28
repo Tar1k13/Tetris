@@ -87,3 +87,7 @@ TM1637Display display = TM1637Display(25, 26);
 
 TaskHandle_t xHandle = NULL;
 TaskHandle_t xSnakeHandle = NULL;
+TaskHandle_t xSnakeControlHandle=NULL;
+TaskHandle_t xTetrisControlHandle=NULL;
+
+bool run_flag=false;

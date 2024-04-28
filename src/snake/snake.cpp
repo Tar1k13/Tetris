@@ -1,8 +1,4 @@
 #include <snake/snake.h>
-#include <MD_MAX72xx.h>
-#include <cppQueue.h>
-#include <Arduino.h>
-#include "Constants.h"
 
 
 const int RIGHT=4;
@@ -12,23 +8,25 @@ const int TOP=3;
 int currentDirectionPrsd=RIGHT;
 int deleteDirection=RIGHT;
 
-typedef struct pos{
-  int x;
-  int y;
-} cornerPosition;
-cppQueue cornerQueue(sizeof(cornerPosition),20,FIFO);
-cppQueue removeDirQueue(sizeof(int),20,FIFO);
+// typedef struct pos{
+//   int x;
+//   int y;
+// } cornerPosition;
+// cppQueue cornerQueue(sizeof(cornerPosition),20,FIFO);
+// cppQueue removeDirQueue(sizeof(int),20,FIFO);
 
-bool fl,fl1,fl2,fl3;
-// bool ml=false,mr=true,mt=false,mb=false;
-// bool mlt,mrt=true,mtr,mbr;
-int posX=4,posY=-1;
-int tailX=4,tailY=-2;
-int turnX=-1,turnY=-1;
-bool permited=false;
+
+
+// int posX=4,posY=-1;
+// int tailX=4,tailY=-2;
+// int turnX=-1,turnY=-1;
+// bool permited=false;
 
 
 void test_control(void *pvParameters){
+  bool fl,fl1,fl2,fl3;
+  currentDirectionPrsd=RIGHT;
+  deleteDirection=RIGHT;
   // cornerQueue.push(&RIGHT);
   // removeDirQueue.push(&RIGHT);
   while (1){
@@ -80,18 +78,35 @@ void test_control(void *pvParameters){
   
 }
 
-uint8_t mtrx[16][8];
-int foodX=4,foodY=12;
-bool food;
-int previousDirection=RIGHT;
+// uint8_t mtrx[16][8];
+// int foodX=4,foodY=12;
+// bool food;
+// int previousDirection=RIGHT;
 long startTime=0;
 long speed_s=1000;
 
 // cornerPosition foodPos={-1,-1};
 void snake(void *pvParameters){
+  Serial.println("CREATED");
     TaskHandle_t xSnakeHandle=*(TaskHandle_t*)pvParameters;
     startTime=xTaskGetTickCount();
-    
+    typedef struct pos{
+  int x;
+  int y;
+} cornerPosition;
+cppQueue cornerQueue(sizeof(cornerPosition),20,FIFO);
+cppQueue removeDirQueue(sizeof(int),20,FIFO);
+    run_flag=true;
+    int posX=4;
+    int posY=-1;
+    Serial.printf("%d,%d\n",posX,posY);
+    int tailX=4,tailY=-2;
+    int turnX=-1,turnY=-1;
+    bool permited=false;
+    uint8_t mtrx[16][8]={0};
+    int foodX=4,foodY=12;
+    bool food=false;
+    int previousDirection=RIGHT;
   while (1){
     
     int currentDirection=0;
@@ -141,7 +156,7 @@ void snake(void *pvParameters){
         
     }
 
-
+    Serial.printf("%d,%d\n",posX,posY);
     if(currentDirection==RIGHT && posY+1<=15 && mtrx[posY+1][posX]==0){  //right
       mx.setPoint(posX,++posY,true);
     }else if(currentDirection==BOTTOM && posX-1>=0 && mtrx[posY][posX-1]==0){  //bottom
@@ -150,7 +165,7 @@ void snake(void *pvParameters){
       mx.setPoint(posX,--posY,true);
     } else if(currentDirection==TOP && posX+1<=7 && mtrx[posY][posX+1]==0){  //top
       mx.setPoint(++posX,posY,true);
-    } else {
+    } else {                                                                  //game over
       Serial.println("GAME OVER");
       uint8_t buffer[16];
       for (size_t i = 0; i < 16; i++){
@@ -165,8 +180,16 @@ void snake(void *pvParameters){
         vTaskDelay(500/portTICK_RATE_MS);
       }
       mx.clear();
-      vTaskDelete(xSnakeHandle);
-    
+     
+      // start_launcher();
+      setup_select();
+      vTaskDelete(xSnakeControlHandle);
+      vTaskDelete(NULL);
+      
+      // break;
+      // vTaskDelete(xSnakeHandle);
+      // 
+      
     }
     mtrx[posY][posX]=1;
 
@@ -225,5 +248,9 @@ void snake(void *pvParameters){
   
     } 
   };
-  
+  //  vTaskDelete(xSnakeHandle);
+  //  vTaskDelete(xSnakeControlHandle);
+  // setup_select();
+       
+      
 };

@@ -81,14 +81,16 @@ void power(void *pvParameters){
   }
 }
 
+
+
 void setup() {
+  Serial.begin(115200);
   pinMode(2,OUTPUT);
   pinMode(13,INPUT_PULLUP);
   digitalWrite(2,HIGH);
-  
+  randomSeed(0);
   xTaskCreate(power,"power",4000,NULL,3,NULL);
-
-  Serial.begin(9600);
+  
   mx.begin();                 // led matrix initialization
   display.setBrightness(7);
   display.showNumberDec(0000);
@@ -116,7 +118,7 @@ void setup() {
   //   xTaskCreate(snake, "snake", 18000, (void *) &xSnakeHandle, 1, &xSnakeHandle);
   // }
   setup_select();
-  play_intro();
+  // play_intro();
 
 
 
