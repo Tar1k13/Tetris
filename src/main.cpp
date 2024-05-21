@@ -88,7 +88,7 @@ void setup() {
   pinMode(2,OUTPUT);
   pinMode(13,INPUT_PULLUP);
   digitalWrite(2,HIGH);
-  randomSeed(0);
+  randomSeed(analogRead(35));
   xTaskCreate(power,"power",4000,NULL,3,NULL);
   
   mx.begin();                 // led matrix initialization

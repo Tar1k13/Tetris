@@ -108,7 +108,8 @@ void play_intro(){
   }
 }
 
-void play_game_over(){
+void play_game_over(void *pvParameters){
+  while(1){
     int size = sizeof(duration1) / sizeof(int);
     for (int note = 0; note < size; note++) {
         int duration = 1000 / duration1[note];
@@ -118,4 +119,6 @@ void play_game_over(){
     
         noTone(33);
     }
+    vTaskDelete(NULL);
+  }
 }

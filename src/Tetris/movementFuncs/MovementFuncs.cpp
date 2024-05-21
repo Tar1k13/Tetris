@@ -12,10 +12,10 @@ void move(int col, int currentfigure[], boolean right,int fig,int matrix[]) {
     }
   }
   if (!checkFigureObjection(moved, col,matrix,fig)) {
-    int bias = 0;
+    int bias = 1;
     for (int i = scope[fig][0]; i <= scope[fig][1]; i++) {
       currentfigure[i] = moved[i];
-      mx.setColumn(col+bias, moved[i] + matrix[col + bias]);
+      mx.setColumn(col-bias, moved[i] + matrix[col - bias]);
       bias++;
     }
   }
@@ -61,13 +61,13 @@ int rotate(int col, int currentFig[],int &mvr,int fig,int &rot,int matrix[],int 
     }
   }
   if (isRotateAble(col, rotated,matrix,fig)) {  //sets rotation result on the screen if figure is rotate able
-    int bias = 0;
+    int bias = 1;
     for (int i = scope[fig][0]; i <= scope[fig][1]; i++) {
-      mx.setColumn(col+bias, matrix[col + bias]);
+      mx.setColumn(col-bias, matrix[col - bias]);
       currentFig[i] = 0x0;
 
       currentFig[i] = rotated[i];
-      mx.setColumn(col+bias, currentFig[i] + matrix[col + bias]);
+      mx.setColumn(col-bias, currentFig[i] + matrix[col - bias]);
       bias++;
     }
     height = calculateHeight(currentFig);
@@ -81,11 +81,11 @@ int rotate(int col, int currentFig[],int &mvr,int fig,int &rot,int matrix[],int 
 }
 
 void moveDown(int col,int currentfigure[],int matrix[],int fig) {
-  int bias = 0;
+  int bias = 1;
   for (int i = scope[fig][0]; i <= scope[fig][1]; i++) {
-    if (col + bias >= 0)
-      mx.setColumn(col + bias, currentfigure[i] + matrix[col + bias]);
-    if (col != 0 && col-1<sizeof(mapping)/sizeof(int)) mx.setColumn(col-1, matrix[col - 1]);
+    if (col <= 17)
+      mx.setColumn(col - bias, currentfigure[i] + matrix[col - bias]);
+    if (col <= 16 ) mx.setColumn(col, matrix[col]);
     bias++;
   }
 }

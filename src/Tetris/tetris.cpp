@@ -24,10 +24,11 @@ boolean flag4 = false;
 
 
 void saveToMatrix(int* matrix, int cCol) {
-  int bias = 0;
+  int bias = 1;
   for (int i = scope[fig][0]; i <= scope[fig][1]; i++) {
-    int elem = currentfigure[i] + matrix[cCol + bias];
-    matrix[cCol + bias] = elem;
+    int elem = currentfigure[i] + matrix[cCol - bias];
+    matrix[cCol - bias] = elem;
+    Serial.println(cCol-bias);
     bias++;
   }
   // for (int i = 0; i < 16; i++) {
@@ -51,9 +52,11 @@ void mainMoving(void* pvParameters) {
       boolean objection = false;
 
       cl = scope[fig][0] - startPos[fig][rot];
-      if (!isGameOver(currentfigure, fig, matrix, cl) && cont) {
-        for (int col = cl; col < 17 - height + cl; col++) {
+      Serial.printf("cl: %d\n",height);
+      if (!isGameOver(currentfigure, fig, matrix, currentColumn) && cont) {
+        for (int col = 16-cl; col >=0-cl+height; col--) {
           if (!checkObjection(col, currentfigure, matrix, fig)) {
+            // Serial.println(col);
             // Serial.println(col);
             moveDown(col, currentfigure, matrix, fig);
             currentColumn = col;
@@ -70,7 +73,8 @@ void mainMoving(void* pvParameters) {
         mv = 0;
         cl = 0;
 
-      } else if (cont) {  // game over
+      } 
+      else if (cont) {  // game over
         // mx.clear();
         for (int i = 15; i >= 0; i--) {
           mx.setColumn(mapping[i], 0xFF);

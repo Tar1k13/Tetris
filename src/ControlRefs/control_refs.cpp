@@ -101,6 +101,12 @@ void select_game(){
   delay(50);
 }
 
+// void power_monitoring(void *pvParameters){
+//   while(true){
+
+//   }
+// }
+
 void setup_select(){
   sel=false;
     xTaskCreate(start_control, "start_control", 2000, NULL, 2, &start_handle);

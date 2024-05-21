@@ -33,8 +33,8 @@
 extern MD_MAX72XX mx;
 extern TM1637Display display; 
 
-extern int figures[7][4][5];
-extern int scope[7][2];
+extern const int figures[7][4][5];
+extern const int scope[7][2];
 extern const int startPos[7][4];
 extern int mapping[16];
 

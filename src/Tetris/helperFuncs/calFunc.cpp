@@ -22,10 +22,10 @@ int countOnes(int num, int numBits) {
 }
 
 boolean checkObjection(int col,int currentfigure[],int matrix[],int fig) {
-  int bias = 0;
+  int bias = 1;
   for (int i = scope[fig][0]; i <= scope[fig][1]; i++) {
     int elem = currentfigure[i];
-    if ((elem & matrix[col + bias]) != 0) {
+    if ((elem & matrix[col - bias]) != 0) {
       return true;
     }
     bias++;
@@ -34,9 +34,9 @@ boolean checkObjection(int col,int currentfigure[],int matrix[],int fig) {
 }
 
 boolean checkFigureObjection(int* mvdFig, int col,int matrix[],int fig) {
-  int bias = 0;
+  int bias = 1;
   for (int i = scope[fig][0]; i <= scope[fig][1]; i++) {
-    if ((mvdFig[i] & matrix[col + bias]) != 0) {
+    if ((mvdFig[i] & matrix[col - bias]) != 0) {
       return true;
     }
     bias++;
@@ -70,16 +70,16 @@ boolean checkBoundings(boolean right,int currentfigure[],int fig) {
 }
 
 boolean isRotateAble(int col, int rotated[], int matrix[],int fig) {
-  int bias = 0;
+  int bias = 1;
   for (int i = scope[fig][0]; i <= scope[fig][1]; i++) {
-    if ((matrix[col + bias] & rotated[i]) != 0) return false;
+    if ((matrix[col - bias] & rotated[i]) != 0) return false;
     bias++;
   }
   return true;
 }
 
 boolean isGameOver(int currentfigure[],int fig,int matrix[], int col){
-  if(checkObjection(col,currentfigure,matrix,fig) && col<=0){
+  if(checkObjection(col,currentfigure,matrix,fig) && col>=16){
     return true;
   } 
   return false;
@@ -90,8 +90,10 @@ void deleteAnimation(int *elemsToDel, int col, int heigh, boolean isRts) {
   int tx = 1;
   int hp = 0;
   while (hp < 4) {
-    for (int t = col; t < col + heigh; t++) {
+    for (int t = col; t>=0; t--) {
+        // Serial.printf("Pos D: %d",t);
       if (elemsToDel[t] != 0) {
+        Serial.printf("Pos D: %d",t);
         int elem = elemsToDel[t] >> ts << tx;
         mx.setColumn(t, elem);
         elemsToDel[t] = elem;
@@ -130,15 +132,17 @@ void deleteLine(int* matr,
   int elemToDel[16] = {0};
   boolean isDel = false;
   int delColNum = 0;  // counter
-  for (int i = col; i <= col + heigh; i++) {
+  // Serial.printf("DEL: %d",col);
+  for (int i = col; i >= col - heigh; i--) {
     // Serial.println(countOnes(matr[i],8));
     if (countOnes(matr[i], 8) == 8) {
       delColNum++;
       isDel = true;
       elemToDel[i] = matr[i];
       matr[i] = 0x0;
-      for (int t = i; t > 0; t--) {
-        matr[t] = matr[t - 1];
+      // Serial.printf("DEL: %d",i);
+      for (int t = i; t < 16; t++) {
+        matr[t] = matr[t + 1];
       }
     }
   }
@@ -150,7 +154,8 @@ void deleteLine(int* matr,
       mx.setColumn(i, matr[i]);
     }
     mainPointCounter += getColFactor(delColNum, currentColumn);
-    play_game_over();
+    xTaskCreate(play_game_over,"music_over",1024,NULL,3,NULL);
+    // play_game_over();
     display.showNumberDec(mainPointCounter);
 
   }

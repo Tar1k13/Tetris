@@ -4,4 +4,4 @@
 #include <pitches.h>
 
 void play_intro();
-void play_game_over();
+void play_game_over(void *pvParameters);
